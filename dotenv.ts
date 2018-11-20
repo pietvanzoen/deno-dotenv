@@ -7,7 +7,6 @@ export interface DotenvConfig {
 export interface ConfigOptions {
   path?: string;
   export?: boolean;
-  encoding?: string;
 }
 
 export function parse(rawDotenv: string): DotenvConfig {

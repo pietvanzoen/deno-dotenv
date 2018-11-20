@@ -1,10 +1,33 @@
-# Dotenv
-
-[![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv)
+# Dotenv [![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv)
 
 Dotenv handling for deno.
 
-### Rules
+## Usage
+
+Setup a `.env` file in the root of your project.
+
+`.env`
+```sh
+GREETING=hello world
+```
+
+Then import the configuration using the `config` function.
+
+`app.ts`
+```ts
+import { config } from 'https://raw.githubusercontent.com/pietvanzoen/deno-dotenv/v0.0.0/dotenv.ts';
+
+console.log(config())
+// { GREETING: 'hello world'}
+
+```
+
+### Options
+- `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
+- `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via [deno's `env` function](https://deno.land/typedoc/index.html#env). Defaults to `false`.
+
+
+## Parsing Rules
 
 The parsing engine currently supports the following rules:
 
@@ -22,3 +45,11 @@ line'}
 
 - inner quotes are maintained (think JSON) (`JSON={"foo": "bar"}` becomes `{JSON:"{\"foo\": \"bar\"}"`)
 - whitespace is removed from both ends of the value (see more on [`trim`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)) (`FOO=" some value "` becomes `{FOO: 'some value'}`)
+
+## TODO
+- [ ] `safe` option that throws if required variables are not present.
+- [ ] Deploy to better location.
+- [ ] Documentation generation.
+
+## Credit
+- Inspired by the node module [`dotenv`](https://github.com/motdotla/dotenv).

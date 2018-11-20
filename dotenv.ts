@@ -1,15 +1,18 @@
-const RE = {
-  EMPTY_LINES: /^\n/g,
-  COMMENTS: /^#.*/g
-};
+import { readFileSync, env, cwd } from "deno";
 
-interface Config {
-  [key: string]: string | number;
+export interface DotenvConfig {
+  [key: string]: string;
 }
 
-export function parse(rawDotenv: string): Config {
-  const config: Config = rawDotenv.split("\n").reduce((acc, line) => {
-    if (!isVariable(line)) return acc;
+export interface ConfigOptions {
+  path?: string;
+  export?: boolean;
+  encoding?: string;
+}
+
+export function parse(rawDotenv: string): DotenvConfig {
+  return rawDotenv.split("\n").reduce((acc, line) => {
+    if (!isVariableStart(line)) return acc;
     let [key, ...vals] = line.split("=");
     let value = vals.join("=");
     if (/^"/.test(value)) {
@@ -18,16 +21,27 @@ export function parse(rawDotenv: string): Config {
     acc[key] = trim(cleanQuotes(value));
     return acc;
   }, {});
-
-  return config;
 }
 
-function isVariable(str: string): boolean {
+export function config(options: ConfigOptions = {}): DotenvConfig {
+  const dotenv = new TextDecoder("utf-8").decode(
+    readFileSync(options.path || `${cwd()}/.env`)
+  );
+
+  const conf = parse(dotenv);
+
+  if (options.export) {
+    const currentEnv = env();
+    for (let key in conf) {
+      currentEnv[key] = conf[key];
+    }
+  }
+
+  return conf;
+}
+
+function isVariableStart(str: string): boolean {
   return /^[a-zA-Z_]*=/.test(str);
-}
-
-function clean(dotenv: string): string {
-  return dotenv.replace(RE.EMPTY_LINES, "").replace(RE.COMMENTS, "");
 }
 
 function cleanQuotes(value: string = ""): string {

@@ -1,8 +1,8 @@
-import { parse } from "./dotenv.ts";
+import { parse, config } from "./dotenv.ts";
 import { test, assertEqual } from "https://deno.land/x/testing/testing.ts";
-import { readFileSync } from "deno";
+import { readFileSync, env } from "deno";
 
-test(function parsesBasicVariables() {
+test(function parser() {
   const testDotenv = new TextDecoder("utf-8").decode(
     readFileSync("./.env.test")
   );
@@ -35,7 +35,19 @@ test(function parsesBasicVariables() {
     "new lines are escaped in single quotes"
   );
   assertEqual(config.EQUALS, "equ==als", "handles equals inside string");
+});
 
-  // TODO: parses numbers
-  // assertEqual(config.THE_ANSWER, 42, "parses numbers");
+test(function configure() {
+  let conf = config();
+  assertEqual(conf.GREETING, "hello world", "fetches .env by default");
+
+  conf = config({ path: "./.env.test" });
+  assertEqual(conf.BASIC, "basic", "accepts a path to fetch env from");
+
+  conf = config({ export: true });
+  assertEqual(
+    env().GREETING,
+    "hello world",
+    "exports variables to env when requested"
+  );
 });

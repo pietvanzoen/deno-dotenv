@@ -7,6 +7,7 @@ Dotenv handling for deno.
 Setup a `.env` file in the root of your project.
 
 `.env`
+
 ```sh
 GREETING=hello world
 ```
@@ -14,10 +15,11 @@ GREETING=hello world
 Then import the configuration using the `config` function.
 
 `app.ts`
-```ts
-import { config } from 'https://raw.githubusercontent.com/pietvanzoen/deno-dotenv/v0.0.0/dotenv.ts';
 
-console.log(config())
+```ts
+import { config } from "https://raw.githubusercontent.com/pietvanzoen/deno-dotenv/v0.0.0/dotenv.ts";
+
+console.log(config());
 ```
 
 Then run your app.
@@ -28,9 +30,9 @@ Then run your app.
 ```
 
 ### Options
+
 - `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
 - `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via [deno's `env` function](https://deno.land/typedoc/index.html#env). Defaults to `false`.
-
 
 ## Parsing Rules
 
@@ -52,9 +54,11 @@ line'}
 - whitespace is removed from both ends of the value (see more on [`trim`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)) (`FOO=" some value "` becomes `{FOO: 'some value'}`)
 
 ## TODO
+
 - [ ] `safe` option that throws if required variables are not present.
 - [ ] Deploy to better location.
 - [ ] Documentation generation.
 
 ## Credit
+
 - Inspired by the node module [`dotenv`](https://github.com/motdotla/dotenv).

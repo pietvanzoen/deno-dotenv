@@ -199,3 +199,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/git,jetbrains+all,linux,macos,sublimetext,windows
+
+# CUSTOM
+.deno/

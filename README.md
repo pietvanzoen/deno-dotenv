@@ -18,8 +18,13 @@ Then import the configuration using the `config` function.
 import { config } from 'https://raw.githubusercontent.com/pietvanzoen/deno-dotenv/v0.0.0/dotenv.ts';
 
 console.log(config())
-// { GREETING: 'hello world'}
+```
 
+Then run your app.
+
+```
+> deno app.ts
+{ GREETING: "hello world" }
 ```
 
 ### Options

@@ -1,3 +1,9 @@
+# Dotenv
+
+[![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv)
+
+Dotenv handling for deno.
+
 ### Rules
 
 The parsing engine currently supports the following rules:

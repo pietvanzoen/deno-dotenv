@@ -1,0 +1,16 @@
+sudo: required
+
+language: ruby
+
+services:
+  - docker
+
+before_install:
+  - docker pull maxmcd/deno:slim
+
+script:
+  - docker run -v $PWD:/dotenv -w /dotenv maxmcd/deno:slim sh -c "DENO_DIR=.deno deno ./test.ts"
+
+cache:
+  directories:
+   - .deno

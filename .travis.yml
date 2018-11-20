@@ -7,6 +7,7 @@ install:
 script:
   - make test
 
+
 cache:
   directories:
    - $HOME/.deno

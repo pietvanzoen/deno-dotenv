@@ -1,13 +1,12 @@
-sudo: required
+language: python
 
-language: generic
-
-services:
-  - docker
+install:
+- [[ ! -x $HOME/.deno/bin/deno ]] && curl -L https://deno.land/x/install/install.py | python
+- export PATH="$HOME/.deno/bin:$PATH"
 
 script:
-  - make test-ci
+  - make test
 
 cache:
   directories:
-   - .deno
+   - $HOME/.deno

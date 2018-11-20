@@ -5,9 +5,6 @@ language: generic
 services:
   - docker
 
-before_install:
-  - docker pull maxmcd/deno:slim
-
 script:
   - make test-ci
 

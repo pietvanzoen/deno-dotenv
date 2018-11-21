@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# Generates new semver tag and pushes based on commit history.
+# Commits beginning with `fix` or `feat` trigger a new patch or minor
+# version. Commits containing `BREAKING CHANGE` trigger a new major
+# version.
+set -e
+
+release_branch="master"
+
+main() {
+  if [[ "$TRAVIS_BRANCH" != "$release_branch" ]]; then
+    echo "Not on release branch. Exiting release."
+    exit 0
+  fi
+
+  if [[ -n "$CI" ]]; then
+    echo "==> Prepping CI environment"
+    setup_ci_git
+  fi
+
+  echo "==> Determine new release version"
+  tags="$(git tag --list --sort='-*authordate' 'v*')"
+  latest_tag="$(echo -e "$tags" | head -n 1 | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)"
+  new_tag="$(generate_next_tag)"
+  [[ -z "$new_tag" ]] && exit 0
+
+  message="$(generate_tag_message)"
+
+  echo "==> Updating README with new version"
+  update_readme $new_tag
+  git add README.md
+  git commit -m "ci: Update README with new version $new_tag."
+
+  echo "==> Creating tag"
+  git tag -a "$new_tag" -m "$(echo -e "$new_tag\n\n$message")"
+
+  if [[ -z "$CI" ]]; then
+    (>&2 echo "Warning: Not in CI environment. Skipping pushing tags.")
+    exit 0
+  fi
+  echo "==> Pushing changes"
+  git push origin $TRAVIS_BRANCH
+  git push origin $TRAVIS_BRANCH --tags
+}
+
+generate_next_tag() {
+  local latest_version major minor patch log_cmd bump_type log
+
+  if [[ -z "$latest_tag" ]]; then
+    (>&2 echo "Error: Tag format not compatible.")
+    exit 1
+  fi
+
+  latest_version="$(echo $latest_tag | tr -d 'v')"
+
+  major="$(echo "$latest_version" | cut -d. -f 1)"
+  minor="$(echo "$latest_version" | cut -d. -f 2)"
+  patch="$(echo "$latest_version" | cut -d. -f 3)"
+
+  log_cmd="git log --date=short $latest_tag..origin/$release_branch"
+
+  if [[ "$($log_cmd --pretty="%s %b")" == *"BREAKING CHANGE"* ]]; then
+    bump_type="breaking"
+  else
+    log="$($log_cmd --pretty="%s")"
+    bump_type="$(echo -e "$log" | grep -E "^feat|^fix" | sed 's/^\(feat\|fix\)[(:].*/\1/' | sort -u | head -1)"
+  fi
+
+  case "$bump_type" in
+    "breaking")
+        major=$((major+1))
+        minor=0
+        patch=0
+        ;;
+    "feat")
+        minor=$((minor+1))
+        patch=0
+        ;;
+    "fix")
+        patch=$((patch+1))
+        ;;
+    *)
+      (>&2 echo "No version bump required.")
+      exit 0
+        ;;
+  esac
+
+  echo "v$major.$minor.$patch"
+}
+
+generate_tag_message() {
+  git log '--pretty=- %s [%h]' --date=short $latest_tag..origin/$release_branch | grep -E "^- feat|^- fix" | sort
+}
+
+update_readme() {
+  local new_tag="$1"
+  sed -i "s/$latest_tag/$new_tag/g" README.md
+}
+
+setup_ci_git() {
+  git remote set-url origin "https://$GITHUB_TOKEN:x-oauth-basic@github.com/$TRAVIS_REPO_SLUG"
+  git checkout $TRAVIS_BRANCH
+  git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  git fetch --all
+  git config user.email "hi+pietbot@pietvanzoen.com"
+  git config user.name "pietbot"
+}
+
+main

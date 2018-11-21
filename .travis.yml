@@ -10,4 +10,17 @@ script:
 
 cache:
   directories:
-    - $HOME/.deno
+    - "$HOME/.deno"
+
+after_success:
+  - ./release
+
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  on:
+    tags: true
+
+env:
+  global:
+    - secure: FkXumnjlk6K4hR91tda+ttxE+J9vYUjcJ6CtrCprx/keh0T4wcuhDFVT8dzjAlNcOZNvjCetNwsZjzAYmQlw9m5T1n1/T5g9nuSB+Zmi9NaIuv/im5q7/LOhARrR65/duXm1Aw/peKNeH9p+OOxEA0BMuf8P3vZqCvVivfqkKkxxVt24nVqgOMZ2nB52CzH1IeEz/kUSEnXckrIganTCb5rgKg6Bf80Tw/ImOv88evnwPjgkjk6xRmZlUzrupKiKrns3dnDzMW+80P6Kjv3rIWaf4nrjI6TTmLamOUdhYM3zLqvk3HJD56b7GeXjwf2Y7in215LJYL0HUK2xnwGkzy8KWRf8HPfNpUQGm+uBzdIU2ZbByBFN42U0dwF6/HqNULe469oY+489ttAK1TSAZX+nMaZWecZ96hYXDiBjyYGQNHhb49/tABPUJ4P+iNPMaWpZXETnrYjL9VKthEOdjau/AxvZRA8Pa1FqIvfihR6I1Pht4zSWJ875O7Sd9QYsCZeEfyhYcuQ3PP91mpP+w6QPwe/NT6KyqUkhXVWA3yDQ8A+Qi6mcqO61HTvoeG1wem8Lnci40jADUHLnnR3gM/5a7K9idYtKZWcEZGxuX8Aol4xvRc6xb+kVofRYuDVJsYKtNG+rIsiMay37U2e3zBZaN5CiZFEwJ2++PZ3Dri8=

@@ -13,7 +13,7 @@ cache:
     - "$HOME/.deno"
 
 after_success:
-  - ./release
+  - curl -sL scripts.piet.me/ci/release | bash
 
 deploy:
   provider: releases

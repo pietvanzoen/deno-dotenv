@@ -47,8 +47,7 @@ function cleanQuotes(value: string = ""): string {
   return value.replace(/^['"]([\s\S]*)['"]$/g, "$1");
 }
 
-function trim(val: any): any {
-  if (typeof val !== "string") return val;
+function trim(val: string): string {
   return val.trim();
 }
 

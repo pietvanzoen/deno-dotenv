@@ -17,7 +17,7 @@ Then import the configuration using the `config` function.
 `app.ts`
 
 ```ts
-import { config } from "https://raw.githubusercontent.com/pietvanzoen/deno-dotenv/v0.0.2/dotenv.ts";
+import { config } from "https://deno.land/x/dotenv/dotenv.ts";
 
 console.log(config());
 ```

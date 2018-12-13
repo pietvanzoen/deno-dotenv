@@ -6,17 +6,15 @@ Dotenv handling for deno.
 
 Setup a `.env` file in the root of your project.
 
-`.env`
-
 ```sh
+# .env
 GREETING=hello world
 ```
 
 Then import the configuration using the `config` function.
 
-`app.ts`
-
 ```ts
+// app.ts
 import { config } from "https://deno.land/x/dotenv/dotenv.ts";
 
 console.log(config());

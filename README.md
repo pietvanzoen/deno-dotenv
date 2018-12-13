@@ -32,6 +32,28 @@ Then run your app.
 - `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
 - `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via [deno's `env` function](https://deno.land/typedoc/index.html#env). Defaults to `false`.
 
+### Auto loading
+
+`load.ts` automatically loads the local `.env` file on import and exports it to the process environment:
+
+```sh
+# .env
+GREETING=hello world
+```
+
+```ts
+// app.ts
+import "https://deno.land/x/dotenv/load.ts";
+import { env } from "deno";
+
+console.log(env().GREETING);
+```
+
+```
+> deno --allow-env app.ts
+hello world
+```
+
 ## Parsing Rules
 
 The parsing engine currently supports the following rules:

@@ -1,5 +1,5 @@
 import { parse, config } from "./dotenv.ts";
-import { test, assertEqual } from "https://deno.land/x/testing/testing.ts";
+import { test, assertEqual } from "https://deno.land/x/testing/mod.ts";
 import { readFileSync, env } from "deno";
 
 test(function parser() {

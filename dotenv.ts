@@ -1,4 +1,5 @@
 import { readFileSync, env, cwd } from "deno";
+import { compact, difference, trim } from "util.ts";
 
 export interface DotenvConfig {
   [key: string]: string;
@@ -7,6 +8,9 @@ export interface DotenvConfig {
 export interface ConfigOptions {
   path?: string;
   export?: boolean;
+  safe?: boolean;
+  example?: string;
+  allowEmptyValues?: boolean;
 }
 
 export function parse(rawDotenv: string): DotenvConfig {
@@ -23,13 +27,25 @@ export function parse(rawDotenv: string): DotenvConfig {
 }
 
 export function config(options: ConfigOptions = {}): DotenvConfig {
-  const dotenv = new TextDecoder("utf-8").decode(
-    readFileSync(options.path || `${cwd()}/.env`)
+  const o: ConfigOptions = Object.assign(
+    {
+      path: `${cwd()}/.env`,
+      export: false,
+      safe: false,
+      example: `${cwd()}/.env.example`,
+      allowEmptyValues: false
+    },
+    options
   );
 
-  const conf = parse(dotenv);
+  const conf = parseFile(o.path);
 
-  if (options.export) {
+  if (o.safe) {
+    const confExample = parseFile(o.example);
+    assertSafe(conf, confExample, o.allowEmptyValues);
+  }
+
+  if (o.export) {
     const currentEnv = env();
     for (let key in conf) {
       currentEnv[key] = conf[key];
@@ -37,6 +53,10 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   }
 
   return conf;
+}
+
+function parseFile(filepath) {
+  return parse(new TextDecoder("utf-8").decode(readFileSync(filepath)));
 }
 
 function isVariableStart(str: string): boolean {
@@ -47,10 +67,40 @@ function cleanQuotes(value: string = ""): string {
   return value.replace(/^['"]([\s\S]*)['"]$/g, "$1");
 }
 
-function trim(val: string): string {
-  return val.trim();
-}
-
 function expandNewlines(str: string): string {
   return str.replace("\\n", "\n");
+}
+
+function assertSafe(conf, confExample, allowEmptyValues) {
+  const currentEnv = env();
+
+  // Not all the variables have to be defined in .env, they can be supplied externally
+  const confWithEnv = Object.assign({}, currentEnv, conf);
+
+  const missing = difference(
+    Object.keys(confExample),
+    // If allowEmptyValues is false, filter out empty values from configuration
+    Object.keys(allowEmptyValues ? confWithEnv : compact(confWithEnv))
+  );
+
+  if (missing.length > 0) {
+    const errorMessages = [
+      `The following variables were defined in the example file but are not present in the environment:\n  ${missing.join(
+        ", "
+      )}`,
+      `Make sure to add them to your env file.`,
+      !allowEmptyValues &&
+        `If you expect any of these variables to be empty, you can set the allowEmptyValues option to true.`
+    ];
+
+    throw new MissingEnvVarsError(errorMessages.filter(Boolean).join("\n\n"));
+  }
+}
+
+export class MissingEnvVarsError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "MissingEnvVarsError";
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
 }

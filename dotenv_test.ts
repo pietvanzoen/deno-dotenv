@@ -1,5 +1,5 @@
-import { parse, config } from "./dotenv.ts";
-import { test, assertEqual } from "https://deno.land/x/testing/mod.ts";
+import { MissingEnvVarsError, parse, config } from "./dotenv.ts";
+import { test, assert, assertEqual } from "https://deno.land/x/testing/mod.ts";
 import { readFileSync, env } from "deno";
 
 test(function parser() {
@@ -50,4 +50,90 @@ test(function configure() {
     "hello world",
     "exports variables to env when requested"
   );
+});
+
+test(function configureSafe() {
+  // Default
+  let conf = config({
+    safe: true
+  });
+  assertEqual(conf.GREETING, "hello world", "fetches .env by default");
+
+  // Custom .env.example
+  conf = config({
+    safe: true,
+    example: "./.env.example.test"
+  });
+
+  assertEqual(
+    conf.GREETING,
+    "hello world",
+    "accepts a path to fetch env example from"
+  );
+
+  // Custom .env and .env.example
+  conf = config({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example.test"
+  });
+
+  assertEqual(
+    conf.GREETING,
+    "hello world",
+    "accepts paths to fetch env and env example from"
+  );
+
+  // Throws if not all required vars are there
+  assert.throws(() => {
+    config({
+      path: "./.env.safe.test",
+      safe: true,
+      example: "./.env.example2.test"
+    });
+  }, MissingEnvVarsError);
+
+  // Throws if any of the required vars is empty
+  assert.throws(() => {
+    config({
+      path: "./.env.safe.empty.test",
+      safe: true,
+      example: "./.env.example2.test"
+    });
+  }, MissingEnvVarsError);
+
+  // Does not throw if any of the required vars is empty, *and* allowEmptyValues is present
+  config({
+    path: "./.env.safe.empty.test",
+    safe: true,
+    example: "./.env.example2.test",
+    allowEmptyValues: true
+  });
+
+  // Does not throw if any of the required vars passed externaly
+  env().ANOTHER = "VAR";
+  config({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example2.test"
+  });
+
+  // Throws if any of the required vars passed externaly is empty
+  env().ANOTHER = "";
+  assert.throws(() => {
+    config({
+      path: "./.env.safe.test",
+      safe: true,
+      example: "./.env.example2.test"
+    });
+  });
+
+  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
+  env().ANOTHER = "";
+  config({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example2.test",
+    allowEmptyValues: true
+  });
 });

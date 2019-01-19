@@ -31,6 +31,9 @@ Then run your app.
 
 - `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
 - `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via [deno's `env` function](https://deno.land/typedoc/index.html#env). Defaults to `false`.
+- `safe?: boolean`: Set to `true` to ensure that all necessary environment variables are defined after reading from `.env`. It will read `.env.example` to get the list of needed variables.
+- `example?: string`: Optional path to `.env.example` file. Defaults to `./.env.example`.
+- `allowEmptyValues?: boolean`: Set to `true` to allow required env variables to be empty. Otherwise it will throw an error if any variable is empty. Defaults to `false`.
 
 ### Auto loading
 
@@ -52,6 +55,32 @@ console.log(env().GREETING);
 ```
 > deno --allow-env app.ts
 hello world
+```
+
+### Safe Mode
+
+To enable safe mode, create a `.env.example` file in the root of the project.
+
+```sh
+# .env.example
+GREETING=
+```
+
+Then import the configuration with `safe` option set to `true`.
+
+```ts
+// app.ts
+import { config } from "https://deno.land/x/dotenv/dotenv.ts";
+
+console.log(config({ safe: true }));
+```
+
+If any of the defined variables is not in `.env`, an error will occur. This method is preferred because it prevents runtime errors in a production application due to improper configuration.
+
+Another way to suply required variables is externally, like so:
+
+```sh
+GREETING="hello world" deno --allow-env app.ts
 ```
 
 ## Parsing Rules

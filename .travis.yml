@@ -2,6 +2,7 @@ language: python
 
 install:
   - make install
+  -	export PATH="$HOME/.deno/bin:$PATH"
 
 script:
   - deno --version

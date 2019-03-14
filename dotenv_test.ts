@@ -4,11 +4,10 @@ import {
   assertThrows,
   assertEquals
 } from "https://deno.land/x/testing/asserts.ts";
-import { readFileSync, env } from "deno";
 
 test(function parser() {
   const testDotenv = new TextDecoder("utf-8").decode(
-    readFileSync("./.env.test")
+    Deno.readFileSync("./.env.test")
   );
   const config = parse(testDotenv);
   assertEquals(config.BASIC, "basic", "parses a basic variable");
@@ -50,7 +49,7 @@ test(function configure() {
 
   conf = config({ export: true });
   assertEquals(
-    env().GREETING,
+    Deno.env().GREETING,
     "hello world",
     "exports variables to env when requested"
   );
@@ -115,7 +114,7 @@ test(function configureSafe() {
   });
 
   // Does not throw if any of the required vars passed externaly
-  env().ANOTHER = "VAR";
+  Deno.env().ANOTHER = "VAR";
   config({
     path: "./.env.safe.test",
     safe: true,
@@ -123,7 +122,7 @@ test(function configureSafe() {
   });
 
   // Throws if any of the required vars passed externaly is empty
-  env().ANOTHER = "";
+  Deno.env().ANOTHER = "";
   assertThrows(() => {
     config({
       path: "./.env.safe.test",
@@ -133,7 +132,7 @@ test(function configureSafe() {
   });
 
   // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
-  env().ANOTHER = "";
+  Deno.env().ANOTHER = "";
   config({
     path: "./.env.safe.test",
     safe: true,

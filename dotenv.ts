@@ -1,4 +1,3 @@
-import { readFileSync, env, cwd } from "deno";
 import { compact, difference, trim } from "util.ts";
 
 export interface DotenvConfig {
@@ -29,10 +28,10 @@ export function parse(rawDotenv: string): DotenvConfig {
 export function config(options: ConfigOptions = {}): DotenvConfig {
   const o: ConfigOptions = Object.assign(
     {
-      path: `${cwd()}/.env`,
+      path: `${Deno.cwd()}/.env`,
       export: false,
       safe: false,
-      example: `${cwd()}/.env.example`,
+      example: `${Deno.cwd()}/.env.example`,
       allowEmptyValues: false
     },
     options
@@ -46,7 +45,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   }
 
   if (o.export) {
-    const currentEnv = env();
+    const currentEnv = Deno.env();
     for (let key in conf) {
       currentEnv[key] = conf[key];
     }
@@ -56,7 +55,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 }
 
 function parseFile(filepath) {
-  return parse(new TextDecoder("utf-8").decode(readFileSync(filepath)));
+  return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
 }
 
 function isVariableStart(str: string): boolean {
@@ -72,7 +71,7 @@ function expandNewlines(str: string): string {
 }
 
 function assertSafe(conf, confExample, allowEmptyValues) {
-  const currentEnv = env();
+  const currentEnv = Deno.env();
 
   // Not all the variables have to be defined in .env, they can be supplied externally
   const confWithEnv = Object.assign({}, currentEnv, conf);

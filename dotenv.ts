@@ -1,4 +1,4 @@
-import { compact, difference, trim } from "util.ts";
+import { compact, difference, trim } from "./util.ts";
 
 export interface DotenvConfig {
   [key: string]: string;

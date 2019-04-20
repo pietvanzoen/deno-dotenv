@@ -1,5 +1,5 @@
-import { test, runTests } from "https://deno.land/x/testing/mod.ts";
-import { assertEquals } from "https://deno.land/x/testing/asserts.ts";
+import { test, runTests } from "https://deno.land/std/testing/mod.ts";
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import "./load.ts";
 
 test(function load() {

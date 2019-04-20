@@ -1,9 +1,9 @@
 import { MissingEnvVarsError, parse, config } from "./dotenv.ts";
-import { runTests, test } from "https://deno.land/x/testing/mod.ts";
+import { runTests, test } from "https://deno.land/std/testing/mod.ts";
 import {
   assertThrows,
   assertEquals
-} from "https://deno.land/x/testing/asserts.ts";
+} from "https://deno.land/std/testing/asserts.ts";
 
 test(function parser() {
   const testDotenv = new TextDecoder("utf-8").decode(

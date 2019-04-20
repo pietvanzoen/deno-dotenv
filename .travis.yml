@@ -1,4 +1,4 @@
-language: python
+language: generic
 
 install:
   - make install

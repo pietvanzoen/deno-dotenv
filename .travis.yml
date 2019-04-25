@@ -5,7 +5,7 @@ install:
   - export PATH="$HOME/.deno/bin:$PATH"
 
 script:
-  - deno -v
+  - deno version
   - make test
 
 cache:

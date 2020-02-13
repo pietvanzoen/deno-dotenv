@@ -1,8 +1,7 @@
-import { test, runTests } from "https://deno.land/std/testing/mod.ts";
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import { compact, difference, trim } from "./util.ts";
 
-test(function compactTest() {
+Deno.test(function compactTest() {
   const actual = compact({
     foo: true,
     bar: false,
@@ -17,13 +16,13 @@ test(function compactTest() {
   assertEquals(actual, expected, "removes falsy values");
 });
 
-test(function trimTest() {
+Deno.test(function trimTest() {
   const actual = trim(" hello world. \n\t ");
   const expected = "hello world.";
   assertEquals(actual, expected, "trims whitespace");
 });
 
-test(function differenceTest() {
+Deno.test(function differenceTest() {
   const actual = difference(["a", "b", "c"], ["b", "c", "d"]);
   const expected = ["a"];
   assertEquals(
@@ -33,4 +32,4 @@ test(function differenceTest() {
   );
 });
 
-runTests();
+await Deno.runTests();

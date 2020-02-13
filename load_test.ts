@@ -1,8 +1,7 @@
-import { test, runTests } from "https://deno.land/std/testing/mod.ts";
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import "./load.ts";
 
-test(function load() {
+Deno.test(function load() {
   assertEquals(
     Deno.env().GREETING,
     "hello world",
@@ -10,4 +9,4 @@ test(function load() {
   );
 });
 
-runTests();
+await Deno.runTests();

@@ -1,11 +1,10 @@
 import { MissingEnvVarsError, parse, config } from "./dotenv.ts";
-import { runTests, test } from "https://deno.land/std/testing/mod.ts";
 import {
   assertThrows,
   assertEquals
 } from "https://deno.land/std/testing/asserts.ts";
 
-test(function parser() {
+Deno.test(function parser() {
   const testDotenv = new TextDecoder("utf-8").decode(
     Deno.readFileSync("./.env.test")
   );
@@ -40,7 +39,7 @@ test(function parser() {
   assertEquals(config.EQUALS, "equ==als", "handles equals inside string");
 });
 
-test(function configure() {
+Deno.test(function configure() {
   let conf = config();
   assertEquals(conf.GREETING, "hello world", "fetches .env by default");
 
@@ -55,7 +54,7 @@ test(function configure() {
   );
 });
 
-test(function configureSafe() {
+Deno.test(function configureSafe() {
   // Default
   let conf = config({
     safe: true
@@ -141,4 +140,4 @@ test(function configureSafe() {
   });
 });
 
-runTests();
+await Deno.runTests();

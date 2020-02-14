@@ -1,13 +1,18 @@
 
+DENO_INSTALL=./.deno_bin
+DENO_BIN=${DENO_INSTALL}/bin/deno
+
 all: fmt test
 
 install:
-	curl -L https://deno.land/x/install/install.sh | sh
+	rm -vrf ${DENO_INSTALL}
+	curl -fsSL https://deno.land/x/install/install.sh | DENO_INSTALL=${DENO_INSTALL} sh
+	${DENO_BIN} --version
 
 test:
-	deno run --reload --allow-env --allow-read ./test.ts
+	${DENO_BIN} run --reload --allow-env --allow-read ./test.ts
 
 fmt:
-	deno fmt *
+	${DENO_BIN} fmt *
 
 .PHONY: test fmt install

@@ -2,10 +2,8 @@ language: generic
 
 install:
   - make install
-  - export PATH="$HOME/.deno/bin:$PATH"
 
 script:
-  - deno --version
   - make test
 
 cache:

@@ -63,7 +63,7 @@ function isVariableStart(str: string): boolean {
 }
 
 function cleanQuotes(value: string = ""): string {
-  return value.replace(/^['"]([\s\S]*)['"]$/g, "$1");
+  return value.replace(/^['"]([\s\S]*)['"]$/gm, "$1");
 }
 
 function expandNewlines(str: string): string {

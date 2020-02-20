@@ -13,7 +13,7 @@ export interface ConfigOptions {
 }
 
 export function parse(rawDotenv: string): DotenvConfig {
-  return rawDotenv.split("\n").reduce((acc, line) => {
+  return rawDotenv.split("\n").reduce((acc: any, line) => {
     if (!isVariableStart(line)) return acc;
     let [key, ...vals] = line.split("=");
     let value = vals.join("=");
@@ -26,7 +26,7 @@ export function parse(rawDotenv: string): DotenvConfig {
 }
 
 export function config(options: ConfigOptions = {}): DotenvConfig {
-  const o: ConfigOptions = Object.assign(
+  const o: Required<ConfigOptions> = Object.assign(
     {
       path: `${Deno.cwd()}/.env`,
       export: false,
@@ -54,7 +54,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   return conf;
 }
 
-function parseFile(filepath) {
+function parseFile(filepath: string) {
   return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
 }
 
@@ -70,7 +70,7 @@ function expandNewlines(str: string): string {
   return str.replace("\\n", "\n");
 }
 
-function assertSafe(conf, confExample, allowEmptyValues) {
+function assertSafe(conf: DotenvConfig, confExample: DotenvConfig, allowEmptyValues: boolean) {
   const currentEnv = Deno.env();
 
   // Not all the variables have to be defined in .env, they can be supplied externally

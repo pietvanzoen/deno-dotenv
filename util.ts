@@ -2,8 +2,8 @@ export function trim(val: string): string {
   return val.trim();
 }
 
-export function compact(obj: Object): Object {
-  return Object.keys(obj).reduce((result, key) => {
+export function compact(obj: any): object {
+  return Object.keys(obj).reduce((result: any, key) => {
     if (obj[key]) {
       result[key] = obj[key];
     }

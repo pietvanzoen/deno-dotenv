@@ -202,3 +202,4 @@ $RECYCLE.BIN/
 
 # CUSTOM
 .deno/
+.deno_bin/

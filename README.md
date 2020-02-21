@@ -1,4 +1,4 @@
-# Dotenv [![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv)
+# Dotenv [![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv) ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/pietvanzoen/deno-dotenv)
 
 Dotenv handling for deno.
 

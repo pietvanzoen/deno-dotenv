@@ -6,7 +6,7 @@ install:
 	deno --version
 
 test:
-	deno run --reload --allow-env --allow-read ./test.ts
+	deno test --reload --allow-env --allow-read ./test.ts
 
 fmt:
 	deno fmt *

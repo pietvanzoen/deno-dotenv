@@ -1,12 +1,12 @@
 import { MissingEnvVarsError, parse, config } from "./dotenv.ts";
 import {
   assertThrows,
-  assertEquals
+  assertEquals,
 } from "https://deno.land/std/testing/asserts.ts";
 
-Deno.test(function parser() {
+Deno.test("parser", () => {
   const testDotenv = new TextDecoder("utf-8").decode(
-    Deno.readFileSync("./.env.test")
+    Deno.readFileSync("./.env.test"),
   );
   const config = parse(testDotenv);
   assertEquals(config.BASIC, "basic", "parses a basic variable");
@@ -16,17 +16,17 @@ Deno.test(function parser() {
   assertEquals(
     config.QUOTED_SINGLE,
     "single quoted",
-    "single quotes are escaped"
+    "single quotes are escaped",
   );
   assertEquals(
     config.QUOTED_DOUBLE,
     "double quoted",
-    "double quotes are escaped"
+    "double quotes are escaped",
   );
   assertEquals(
     config.MULTILINE,
     "hello\nworld",
-    "new lines are expanded in double quotes"
+    "new lines are expanded in double quotes",
   );
   assertEquals(config.JSON, '{"foo": "bar"}', "inner quotes are maintained");
   assertEquals(config.WHITESPACE, "whitespace", "values are trimmed");
@@ -34,12 +34,12 @@ Deno.test(function parser() {
   assertEquals(
     config.MULTILINE_SINGLE_QUOTE,
     "hello\\nworld",
-    "new lines are escaped in single quotes"
+    "new lines are escaped in single quotes",
   );
   assertEquals(config.EQUALS, "equ==als", "handles equals inside string");
 });
 
-Deno.test(function configure() {
+Deno.test("configure", () => {
   let conf = config();
   assertEquals(conf.GREETING, "hello world", "fetches .env by default");
 
@@ -48,42 +48,42 @@ Deno.test(function configure() {
 
   conf = config({ export: true });
   assertEquals(
-    Deno.env().GREETING,
+    Deno.env.get("GREETING"),
     "hello world",
-    "exports variables to env when requested"
+    "exports variables to env when requested",
   );
 });
 
-Deno.test(function configureSafe() {
+Deno.test("configureSafe", () => {
   // Default
   let conf = config({
-    safe: true
+    safe: true,
   });
   assertEquals(conf.GREETING, "hello world", "fetches .env by default");
 
   // Custom .env.example
   conf = config({
     safe: true,
-    example: "./.env.example.test"
+    example: "./.env.example.test",
   });
 
   assertEquals(
     conf.GREETING,
     "hello world",
-    "accepts a path to fetch env example from"
+    "accepts a path to fetch env example from",
   );
 
   // Custom .env and .env.example
   conf = config({
     path: "./.env.safe.test",
     safe: true,
-    example: "./.env.example.test"
+    example: "./.env.example.test",
   });
 
   assertEquals(
     conf.GREETING,
     "hello world",
-    "accepts paths to fetch env and env example from"
+    "accepts paths to fetch env and env example from",
   );
 
   // Throws if not all required vars are there
@@ -91,7 +91,7 @@ Deno.test(function configureSafe() {
     config({
       path: "./.env.safe.test",
       safe: true,
-      example: "./.env.example2.test"
+      example: "./.env.example2.test",
     });
   }, MissingEnvVarsError);
 
@@ -100,7 +100,7 @@ Deno.test(function configureSafe() {
     config({
       path: "./.env.safe.empty.test",
       safe: true,
-      example: "./.env.example2.test"
+      example: "./.env.example2.test",
     });
   }, MissingEnvVarsError);
 
@@ -109,35 +109,33 @@ Deno.test(function configureSafe() {
     path: "./.env.safe.empty.test",
     safe: true,
     example: "./.env.example2.test",
-    allowEmptyValues: true
+    allowEmptyValues: true,
   });
 
   // Does not throw if any of the required vars passed externaly
-  Deno.env().ANOTHER = "VAR";
-  config({
-    path: "./.env.safe.test",
-    safe: true,
-    example: "./.env.example2.test"
-  });
-
-  // Throws if any of the required vars passed externaly is empty
-  Deno.env().ANOTHER = "";
-  assertThrows(() => {
-    config({
-      path: "./.env.safe.test",
-      safe: true,
-      example: "./.env.example2.test"
-    });
-  });
-
-  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
-  Deno.env().ANOTHER = "";
+  Deno.env.set("ANOTHER", "VAR");
   config({
     path: "./.env.safe.test",
     safe: true,
     example: "./.env.example2.test",
-    allowEmptyValues: true
+  });
+
+  // Throws if any of the required vars passed externaly is empty
+  Deno.env.set("ANOTHER", "");
+  assertThrows(() => {
+    config({
+      path: "./.env.safe.test",
+      safe: true,
+      example: "./.env.example2.test",
+    });
+  });
+
+  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
+  Deno.env.set("ANOTHER", "");
+  config({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example2.test",
+    allowEmptyValues: true,
   });
 });
-
-await Deno.runTests();

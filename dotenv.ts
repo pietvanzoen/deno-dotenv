@@ -32,9 +32,9 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
       export: false,
       safe: false,
       example: `${Deno.cwd()}/.env.example`,
-      allowEmptyValues: false
+      allowEmptyValues: false,
     },
-    options
+    options,
   );
 
   const conf = parseFile(o.path);
@@ -45,9 +45,8 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   }
 
   if (o.export) {
-    const currentEnv = Deno.env();
     for (let key in conf) {
-      currentEnv[key] = conf[key];
+      Deno.env.set(key, conf[key]);
     }
   }
 
@@ -70,8 +69,12 @@ function expandNewlines(str: string): string {
   return str.replace("\\n", "\n");
 }
 
-function assertSafe(conf: DotenvConfig, confExample: DotenvConfig, allowEmptyValues: boolean) {
-  const currentEnv = Deno.env();
+function assertSafe(
+  conf: DotenvConfig,
+  confExample: DotenvConfig,
+  allowEmptyValues: boolean,
+) {
+  const currentEnv = Deno.env.toObject();
 
   // Not all the variables have to be defined in .env, they can be supplied externally
   const confWithEnv = Object.assign({}, currentEnv, conf);
@@ -79,17 +82,19 @@ function assertSafe(conf: DotenvConfig, confExample: DotenvConfig, allowEmptyVal
   const missing = difference(
     Object.keys(confExample),
     // If allowEmptyValues is false, filter out empty values from configuration
-    Object.keys(allowEmptyValues ? confWithEnv : compact(confWithEnv))
+    Object.keys(allowEmptyValues ? confWithEnv : compact(confWithEnv)),
   );
 
   if (missing.length > 0) {
     const errorMessages = [
-      `The following variables were defined in the example file but are not present in the environment:\n  ${missing.join(
-        ", "
-      )}`,
+      `The following variables were defined in the example file but are not present in the environment:\n  ${
+        missing.join(
+          ", ",
+        )
+      }`,
       `Make sure to add them to your env file.`,
       !allowEmptyValues &&
-        `If you expect any of these variables to be empty, you can set the allowEmptyValues option to true.`
+      `If you expect any of these variables to be empty, you can set the allowEmptyValues option to true.`,
     ];
 
     throw new MissingEnvVarsError(errorMessages.filter(Boolean).join("\n\n"));

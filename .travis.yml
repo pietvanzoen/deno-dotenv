@@ -4,6 +4,7 @@ install:
   - make install
   - export DENO_INSTALL="/home/travis/.deno"
   - export PATH="$DENO_INSTALL/bin:$PATH"
+  - deno --version
 
 script:
   - make test

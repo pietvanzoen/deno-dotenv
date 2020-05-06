@@ -31,5 +31,3 @@ Deno.test(function differenceTest() {
     "returns an array of elements in list1 that are not in list2"
   );
 });
-
-await Deno.runTests();

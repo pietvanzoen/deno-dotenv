@@ -8,5 +8,3 @@ Deno.test(function load() {
     "auto exports .env into env"
   );
 });
-
-await Deno.runTests();

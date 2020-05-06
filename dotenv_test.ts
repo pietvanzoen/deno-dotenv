@@ -139,5 +139,3 @@ Deno.test(function configureSafe() {
     allowEmptyValues: true
   });
 });
-
-await Deno.runTests();

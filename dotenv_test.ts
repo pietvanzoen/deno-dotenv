@@ -4,7 +4,7 @@ import {
   assertEquals
 } from "https://deno.land/std/testing/asserts.ts";
 
-Deno.test(function parser() {
+Deno.test(function parser(): void {
   const testDotenv = new TextDecoder("utf-8").decode(
     Deno.readFileSync("./.env.test")
   );
@@ -39,7 +39,7 @@ Deno.test(function parser() {
   assertEquals(config.EQUALS, "equ==als", "handles equals inside string");
 });
 
-Deno.test(function configure() {
+Deno.test(function configure(): void {
   let conf = config();
   assertEquals(conf.GREETING, "hello world", "fetches .env by default");
 
@@ -54,7 +54,7 @@ Deno.test(function configure() {
   );
 });
 
-Deno.test(function configureSafe() {
+Deno.test(function configureSafe(): void {
   // Default
   let conf = config({
     safe: true

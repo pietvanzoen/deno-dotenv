@@ -30,7 +30,7 @@ Then run your app.
 ### Options
 
 - `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
-- `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via [deno's `env` function](https://deno.land/typedoc/index.html#env). Defaults to `false`.
+- `export?: boolean`: Set to `true` to export all `.env` variables to the current processes environment. Variables are then accessable via `Deno.env.get(<key>)`. Defaults to `false`.
 - `safe?: boolean`: Set to `true` to ensure that all necessary environment variables are defined after reading from `.env`. It will read `.env.example` to get the list of needed variables.
 - `example?: string`: Optional path to `.env.example` file. Defaults to `./.env.example`.
 - `allowEmptyValues?: boolean`: Set to `true` to allow required env variables to be empty. Otherwise it will throw an error if any variable is empty. Defaults to `false`.
@@ -47,9 +47,8 @@ GREETING=hello world
 ```ts
 // app.ts
 import "https://deno.land/x/dotenv/load.ts";
-import { env } from "deno";
 
-console.log(env().GREETING);
+console.log(Deno.env.get('GREETING'));
 ```
 
 ```

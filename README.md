@@ -15,7 +15,7 @@ Then import the configuration using the `config` function.
 
 ```ts
 // app.ts
-import { config } from "https://deno.land/x/dotenv/dotenv.ts";
+import { config } from "https://deno.land/x/dotenv/mod.ts";
 
 console.log(config());
 ```
@@ -70,7 +70,7 @@ Then import the configuration with `safe` option set to `true`.
 
 ```ts
 // app.ts
-import { config } from "https://deno.land/x/dotenv/dotenv.ts";
+import { config } from "https://deno.land/x/dotenv/mod.ts";
 
 console.log(config({ safe: true }));
 ```

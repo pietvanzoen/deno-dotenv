@@ -2,7 +2,7 @@ language: generic
 
 install:
   - make install
-  - export DENO_INSTALL="/home/travis/.deno"
+  - export DENO_INSTALL="$HOME/.deno"
   - export PATH="$DENO_INSTALL/bin:$PATH"
   - deno --version
 

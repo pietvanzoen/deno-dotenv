@@ -5,9 +5,10 @@ install:
 	curl -fsSL https://deno.land/x/install/install.sh | sh
 
 test:
-	deno test --reload --allow-env --allow-read ./test.ts
+	deno test --reload --allow-env
+	deno fmt --check
 
 fmt:
-	deno fmt *
+	deno fmt
 
 .PHONY: test fmt install

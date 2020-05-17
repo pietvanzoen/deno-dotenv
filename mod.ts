@@ -15,7 +15,7 @@ export interface ConfigOptions {
 export function parse(rawDotenv: string): DotenvConfig {
   return rawDotenv.split("\n").reduce((acc: any, line) => {
     if (!isVariableStart(line)) return acc;
-    let [key, ...vals] = line.split("=");
+    let [key, ...vals] = removeSpacesAroundEquals(line).split("=");
     let value = vals.join("=");
     if (/^"/.test(value)) {
       value = expandNewlines(value);
@@ -58,11 +58,15 @@ function parseFile(filepath: string) {
 }
 
 function isVariableStart(str: string): boolean {
-  return /^[a-zA-Z_]*=/.test(str);
+  return /^[a-zA-Z_ ]*=/.test(str);
 }
 
 function cleanQuotes(value: string = ""): string {
   return value.replace(/^['"]([\s\S]*)['"]$/gm, "$1");
+}
+
+function removeSpacesAroundEquals(str: string): string {
+  return str.replace(/( *= *)/, "=");
 }
 
 function expandNewlines(str: string): string {

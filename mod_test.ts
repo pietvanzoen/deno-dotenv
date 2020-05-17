@@ -37,6 +37,12 @@ Deno.test("parser", () => {
     "new lines are escaped in single quotes",
   );
   assertEquals(config.EQUALS, "equ==als", "handles equals inside string");
+
+  assertEquals(
+    config.VAR_WITH_SPACE,
+    "var with space",
+    "variables defined with spaces are parsed",
+  );
 });
 
 Deno.test("configure", () => {

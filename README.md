@@ -52,7 +52,7 @@ console.log(Deno.env.get('GREETING'));
 ```
 
 ```
-> deno --allow-env app.ts
+> deno --allow-env --allow-read app.ts
 hello world
 ```
 

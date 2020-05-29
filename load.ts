@@ -1,3 +1,3 @@
-import { config } from "./dotenv.ts";
+import { config } from "./mod.ts";
 
 config({ export: true });

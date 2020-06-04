@@ -43,6 +43,12 @@ Deno.test("parser", () => {
     "var with space",
     "variables defined with spaces are parsed",
   );
+
+  assertEquals(
+    config.V4R_W1TH_NUM8ER5,
+    "var with numbers",
+    "accepts variables containing number",
+  );
 });
 
 Deno.test("configure", () => {

@@ -54,7 +54,12 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 }
 
 function parseFile(filepath: string) {
-  return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
+  try {
+    return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
+  } catch (e) {
+    if (e instanceof Deno.errors.NotFound) return {};
+    throw e;
+  }
 }
 
 function isVariableStart(str: string): boolean {

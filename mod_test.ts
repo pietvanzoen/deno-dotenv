@@ -2,6 +2,7 @@ import { MissingEnvVarsError, parse, config } from "./mod.ts";
 import {
   assertThrows,
   assertEquals,
+  fail,
 } from "https://deno.land/std/testing/asserts.ts";
 
 Deno.test("parser", () => {
@@ -63,6 +64,12 @@ Deno.test("configure", () => {
     Deno.env.get("GREETING"),
     "hello world",
     "exports variables to env when requested",
+  );
+
+  assertEquals(
+    config({ path: "./.some.non.existent.env" }),
+    {},
+    "returns empty object if file doesn't exist",
   );
 });
 

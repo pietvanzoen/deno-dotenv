@@ -46,7 +46,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 
   if (o.export) {
     for (let key in conf) {
-      Deno.env.set(key, conf[key]);
+      Deno.env.set(key.trim(), conf[key].trim());
     }
   }
 

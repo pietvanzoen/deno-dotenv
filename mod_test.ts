@@ -50,6 +50,18 @@ Deno.test("parser", () => {
     "var with numbers",
     "accepts variables containing number",
   );
+
+  assertEquals(
+    config.INDENTED_VAR,
+    "indented var",
+    "accepts variables that are indented with space",
+  );
+
+  assertEquals(
+    config.TAB_INDENTED_VAR,
+    "indented var",
+    "accepts variables that are indented with tabs",
+  );
 });
 
 Deno.test("configure", () => {

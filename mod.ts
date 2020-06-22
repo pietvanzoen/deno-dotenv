@@ -28,10 +28,10 @@ export function parse(rawDotenv: string): DotenvConfig {
 export function config(options: ConfigOptions = {}): DotenvConfig {
   const o: Required<ConfigOptions> = Object.assign(
     {
-      path: `${Deno.cwd()}/.env`,
+      path: `.env`,
       export: false,
       safe: false,
-      example: `${Deno.cwd()}/.env.example`,
+      example: `.env.example`,
       allowEmptyValues: false,
     },
     options,

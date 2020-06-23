@@ -81,7 +81,12 @@ Deno.test("configure", () => {
   );
 
   assertEquals(
-    config({ path: "./.some.non.existent.env" , defaults: "./.some.non.existent.env"}),
+    config(
+      {
+        path: "./.some.non.existent.env",
+        defaults: "./.some.non.existent.env",
+      },
+    ),
     {},
     "returns empty object if file doesn't exist",
   );

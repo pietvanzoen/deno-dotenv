@@ -10,6 +10,7 @@ export interface ConfigOptions {
   safe?: boolean;
   example?: string;
   allowEmptyValues?: boolean;
+  defaults?: string;
 }
 
 export function parse(rawDotenv: string): DotenvConfig {
@@ -28,11 +29,12 @@ export function parse(rawDotenv: string): DotenvConfig {
 export function config(options: ConfigOptions = {}): DotenvConfig {
   const o: Required<ConfigOptions> = Object.assign(
     {
-      path: `${Deno.cwd()}/.env`,
+      path: `.env`,
       export: false,
       safe: false,
-      example: `${Deno.cwd()}/.env.example`,
+      example: `.env.example`,
       allowEmptyValues: false,
+      defaults: `.env.defaults`,
     },
     options,
   );
@@ -42,6 +44,15 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   if (o.safe) {
     const confExample = parseFile(o.example);
     assertSafe(conf, confExample, o.allowEmptyValues);
+  }
+
+  if (o.defaults) {
+    const confDefaults = parseFile(o.defaults);
+    for (let key in confDefaults) {
+      if (!(key in conf)) {
+        conf[key] = confDefaults[key];
+      }
+    }
   }
 
   if (o.export) {

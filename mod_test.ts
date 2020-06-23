@@ -68,6 +68,8 @@ Deno.test("configure", () => {
   let conf = config();
   assertEquals(conf.GREETING, "hello world", "fetches .env by default");
 
+  assertEquals(conf.DEFAULT1, "Some Default", "default value loaded");
+
   conf = config({ path: "./.env.test" });
   assertEquals(conf.BASIC, "basic", "accepts a path to fetch env from");
 
@@ -79,9 +81,15 @@ Deno.test("configure", () => {
   );
 
   assertEquals(
-    config({ path: "./.some.non.existent.env" }),
+    config({ path: "./.some.non.existent.env" , defaults: "./.some.non.existent.env"}),
     {},
     "returns empty object if file doesn't exist",
+  );
+
+  assertEquals(
+    config({ path: "./.some.non.existent.env" }),
+    { DEFAULT1: "Some Default" },
+    "returns with defaults if file doesn't exist",
   );
 });
 

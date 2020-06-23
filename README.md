@@ -34,6 +34,7 @@ Then run your app.
 - `safe?: boolean`: Set to `true` to ensure that all necessary environment variables are defined after reading from `.env`. It will read `.env.example` to get the list of needed variables.
 - `example?: string`: Optional path to `.env.example` file. Defaults to `./.env.example`.
 - `allowEmptyValues?: boolean`: Set to `true` to allow required env variables to be empty. Otherwise it will throw an error if any variable is empty. Defaults to `false`.
+- `defaults?: string`: Optional path to `.env.defaults` file which defaults to `./.env.defaults`.
 
 ### Auto loading
 
@@ -80,6 +81,16 @@ Another way to suply required variables is externally, like so:
 
 ```sh
 GREETING="hello world" deno --allow-env app.ts
+```
+
+## Default Values
+
+DEfault values can be easily added via creating a `.env.defaults` file and using the same format as an`.env` file.
+
+```sh
+# .env.defaults
+# Will not be set if GREETING is set in base .env file
+GREETING="a secret to everybody"
 ```
 
 ## Parsing Rules

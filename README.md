@@ -85,7 +85,7 @@ GREETING="hello world" deno --allow-env app.ts
 
 ## Default Values
 
-DEfault values can be easily added via creating a `.env.defaults` file and using the same format as an`.env` file.
+Default values can be easily added via creating a `.env.defaults` file and using the same format as an`.env` file.
 
 ```sh
 # .env.defaults

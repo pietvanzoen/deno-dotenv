@@ -1,5 +1,12 @@
 # Dotenv [![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv) [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/pietvanzoen/deno-dotenv)](https://github.com/pietvanzoen/deno-dotenv/releases)
 
+This is a development fork, please use the [upstream](https://github.com/pietvanzoen/deno-dotenv) version!
+
+## ToDo List
+- [x] Add Automatic JSON importing (See Branch [import-json2object](https://github.com/zinthose/deno-dotenv/tree/import-json2object))
+- [ ] Add .ENV values to set deno-dotenv configurations.
+  - [ ] Add flag to enable / disable automatic JSON importing
+
 Dotenv handling for deno.
 
 ## Usage

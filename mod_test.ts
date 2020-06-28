@@ -3,6 +3,7 @@ import {
   assertThrows,
   assertEquals,
   fail,
+  assertNotEquals,
 } from "https://deno.land/std/testing/asserts.ts";
 
 Deno.test("parser", () => {
@@ -30,6 +31,7 @@ Deno.test("parser", () => {
     "new lines are expanded in double quotes",
   );
   assertEquals(config.JSON, '{"foo": "bar"}', "inner quotes are maintained");
+  assertNotEquals(config.JSON, {"foo": "bar"}, "parseJSON is disabled");
   assertEquals(config.WHITESPACE, "whitespace", "values are trimmed");
 
   assertEquals(
@@ -62,6 +64,17 @@ Deno.test("parser", () => {
     "indented var",
     "accepts variables that are indented with tabs",
   );
+});
+
+Deno.test("parseJSON", () => {
+  let conf = config({
+    path: "./.env.test",
+    parseJSON: true,
+  });
+
+  assertEquals(conf.JSON, {"foo": "bar"}, "parseJSON - failed to parse json from .env");
+  assertNotEquals(conf.JSON, '{"foo": "bar"}', "parseJSON - failed to parse json from .env");
+
 });
 
 Deno.test("configure", () => {

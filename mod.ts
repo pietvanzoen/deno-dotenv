@@ -11,6 +11,7 @@ export interface ConfigOptions {
   example?: string;
   allowEmptyValues?: boolean;
   defaults?: string;
+  parseJSON?: boolean;
 }
 
 export function parse(rawDotenv: string): DotenvConfig {
@@ -35,6 +36,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
       example: `.env.example`,
       allowEmptyValues: false,
       defaults: `.env.defaults`,
+      parseJSON: false,
     },
     options,
   );
@@ -51,6 +53,17 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
     for (let key in confDefaults) {
       if (!(key in conf)) {
         conf[key] = confDefaults[key];
+      }
+    }
+  }
+
+  if (o.parseJSON) {
+    for (let key in conf) {
+      try {
+        conf[key] = JSON.parse(conf[key]);
+      } catch {
+        // Do nothing - I would normally use a finally but it is bugged. 
+        // See [BUG: Try Finally errors when Finally is empty #6545](https://github.com/denoland/deno/issues/6545)
       }
     }
   }

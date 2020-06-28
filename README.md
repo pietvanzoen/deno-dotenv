@@ -40,6 +40,7 @@ Then run your app.
 - `example?: string`: Optional path to `.env.example` file. Defaults to `./.env.example`.
 - `allowEmptyValues?: boolean`: Set to `true` to allow required env variables to be empty. Otherwise it will throw an error if any variable is empty. Defaults to `false`.
 - `defaults?: string`: Optional path to `.env.defaults` file which defaults to `./.env.defaults`.
+- `parseJSON?: boolean`: Set to `true` to automatically parse any JSON values into objects. Defaults to `false`.
 
 ### Auto loading
 

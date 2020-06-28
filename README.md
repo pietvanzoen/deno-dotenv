@@ -2,11 +2,6 @@
 
 This is a development fork, please use the [upstream](https://github.com/pietvanzoen/deno-dotenv) version!
 
-## ToDo List
-- [x] Add Automatic JSON importing (See Branch [import-json2object](https://github.com/zinthose/deno-dotenv/tree/import-json2object))
-- [ ] Add .ENV values to set deno-dotenv configurations.
-  - [ ] Add flag to enable / disable automatic JSON importing Dotenv handling for deno.
-
 ## Usage
 
 Setup a `.env` file in the root of your project.

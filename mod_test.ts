@@ -3,7 +3,7 @@ import {
   assertThrows,
   assertEquals,
   fail,
-} from "https://deno.land/std/testing/asserts.ts";
+} from "https://deno.land/std@0.60.0/testing/asserts.ts";
 
 Deno.test("parser", () => {
   const testDotenv = new TextDecoder("utf-8").decode(

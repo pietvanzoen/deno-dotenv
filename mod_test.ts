@@ -1,7 +1,7 @@
-import { MissingEnvVarsError, parse, config } from "./mod.ts";
+import { config, MissingEnvVarsError, parse } from "./mod.ts";
 import {
-  assertThrows,
   assertEquals,
+  assertThrows,
   fail,
 } from "https://deno.land/std@0.60.0/testing/asserts.ts";
 

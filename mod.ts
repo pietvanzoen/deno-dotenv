@@ -57,6 +57,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 
   if (o.export) {
     for (let key in conf) {
+      if (Deno.env.get(key) !== undefined) continue;
       Deno.env.set(key, conf[key]);
     }
   }

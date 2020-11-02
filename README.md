@@ -103,6 +103,7 @@ The parsing engine currently supports the following rules:
 - empty values become empty strings (`EMPTY=` becomes `{EMPTY: ''}`)
 - single and double quoted values are escaped (`SINGLE_QUOTE='quoted'` becomes `{SINGLE_QUOTE: "quoted"}`)
 - new lines are expanded if in double quotes (`MULTILINE="new\nline"` becomes
+- Variables that already exist in the environment are not overridden with `export: true`
 
 ```
 {MULTILINE: 'new

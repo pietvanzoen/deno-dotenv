@@ -80,6 +80,14 @@ Deno.test("configure", () => {
     "exports variables to env when requested",
   );
 
+  Deno.env.set("DO_NOT_OVERRIDE", "Hello there");
+  conf = config({ export: true });
+  assertEquals(
+    Deno.env.get("DO_NOT_OVERRIDE"),
+    "Hello there",
+    "does not export .env value if environment variable is already set",
+  );
+
   assertEquals(
     config(
       {

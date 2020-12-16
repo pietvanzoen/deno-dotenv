@@ -1,5 +1,5 @@
 import { assertEquals } from "./test_deps.ts";
-import { compact, difference, trim } from "./util.ts";
+import { compact, difference } from "./util.ts";
 
 Deno.test("compactTest", () => {
   const actual = compact({
@@ -14,12 +14,6 @@ Deno.test("compactTest", () => {
   };
 
   assertEquals(actual, expected, "removes falsy values");
-});
-
-Deno.test("trimTest", () => {
-  const actual = trim(" hello world. \n\t ");
-  const expected = "hello world.";
-  assertEquals(actual, expected, "trims whitespace");
 });
 
 Deno.test("differenceTest", () => {

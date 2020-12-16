@@ -1,14 +1,6 @@
-export function trim(val: string): string {
-  return val.trim();
-}
-
-export function compact(obj: any): object {
-  return Object.keys(obj).reduce((result: any, key) => {
-    if (obj[key]) {
-      result[key] = obj[key];
-    }
-    return result;
-  }, {});
+// deno-lint-ignore no-explicit-any
+export function compact(obj: Record<string, any>): Record<string, any> {
+  return Object.fromEntries(Object.entries(obj).filter(([, value]) => value));
 }
 
 export function difference(arrA: string[], arrB: string[]): string[] {

@@ -102,16 +102,17 @@ The parsing engine currently supports the following rules:
 - lines beginning with `#` are treated as comments
 - empty values become empty strings (`EMPTY=` becomes `{EMPTY: ''}`)
 - single and double quoted values are escaped (`SINGLE_QUOTE='quoted'` becomes `{SINGLE_QUOTE: "quoted"}`)
-- new lines are expanded if in double quotes (`MULTILINE="new\nline"` becomes
-- Variables that already exist in the environment are not overridden with `export: true`
+- new lines are expanded in double quoted values (`MULTILINE="new\nline"` becomes
 
 ```
 {MULTILINE: 'new
 line'}
 ```
 
+- Variables that already exist in the environment are not overridden with `export: true`
 - inner quotes are maintained (think JSON) (`JSON={"foo": "bar"}` becomes `{JSON:"{\"foo\": \"bar\"}"`)
-- whitespace is removed from both ends of the value (see more on [`trim`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)) (`FOO=" some value "` becomes `{FOO: 'some value'}`)
+- whitespace is removed from both ends of unquoted values (see more on [`trim`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)) (`FOO= some value ` becomes `{FOO: 'some value'}`)
+- whitespace is preserved on both ends of quoted values (`FOO=" some value "` becomes `{FOO: ' some value '}`)
 
 ## Contributing
 

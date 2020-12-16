@@ -29,7 +29,11 @@ Deno.test("parser", () => {
     "new lines are expanded in double quotes",
   );
 
-  assertEquals(config.JSON, '{"foo": "bar"}', "inner quotes are maintained");
+  assertEquals(
+    JSON.parse(config.JSON).foo,
+    "bar",
+    "inner quotes are maintained",
+  );
 
   assertEquals(
     config.WHITESPACE,

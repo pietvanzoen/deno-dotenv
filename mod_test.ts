@@ -8,31 +8,47 @@ Deno.test("parser", () => {
   const config = parse(testDotenv);
   assertEquals(config.BASIC, "basic", "parses a basic variable");
   assertEquals(config.AFTER_EMPTY, "empty", "skips empty lines");
-  assertEquals(config.AFTER_COMMENT, "comment", "skips lines with comments");
+  assertEquals(config["#COMMENT"], undefined, "skips lines with comments");
   assertEquals(config.EMPTY_VALUE, "", "empty values are empty strings");
+
   assertEquals(
     config.QUOTED_SINGLE,
     "single quoted",
     "single quotes are escaped",
   );
+
   assertEquals(
     config.QUOTED_DOUBLE,
     "double quoted",
     "double quotes are escaped",
   );
+
   assertEquals(
     config.MULTILINE,
     "hello\nworld",
     "new lines are expanded in double quotes",
   );
+
   assertEquals(config.JSON, '{"foo": "bar"}', "inner quotes are maintained");
-  assertEquals(config.WHITESPACE, "whitespace", "values are trimmed");
+
+  assertEquals(
+    config.WHITESPACE,
+    "    whitespace   ",
+    "whitespace in single-quoted values is preserved",
+  );
+
+  assertEquals(
+    config.WHITESPACE_DOUBLE,
+    "    whitespace   ",
+    "whitespace in double-quoted values is preserved",
+  );
 
   assertEquals(
     config.MULTILINE_SINGLE_QUOTE,
     "hello\\nworld",
     "new lines are escaped in single quotes",
   );
+
   assertEquals(config.EQUALS, "equ==als", "handles equals inside string");
 
   assertEquals(
@@ -42,9 +58,21 @@ Deno.test("parser", () => {
   );
 
   assertEquals(
+    config.VAR_WITH_ENDING_WHITESPACE,
+    "value",
+    "variables defined with ending whitespace are trimmed",
+  );
+
+  assertEquals(
     config.V4R_W1TH_NUM8ER5,
     "var with numbers",
     "accepts variables containing number",
+  );
+
+  assertEquals(
+    config["1INVALID"],
+    undefined,
+    "variables beginning with a number are not parsed",
   );
 
   assertEquals(
@@ -54,9 +82,21 @@ Deno.test("parser", () => {
   );
 
   assertEquals(
+    config.INDENTED_VALUE,
+    "indented value",
+    "accepts values that are indented with space",
+  );
+
+  assertEquals(
     config.TAB_INDENTED_VAR,
     "indented var",
     "accepts variables that are indented with tabs",
+  );
+
+  assertEquals(
+    config.TAB_INDENTED_VALUE,
+    "indented value",
+    "accepts values that are indented with tabs",
   );
 });
 

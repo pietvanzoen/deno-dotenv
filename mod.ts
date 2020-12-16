@@ -1,4 +1,4 @@
-import { compact, difference, trim } from "./util.ts";
+import { compact, difference } from "./util.ts";
 
 export interface DotenvConfig {
   [key: string]: string;
@@ -14,16 +14,22 @@ export interface ConfigOptions {
 }
 
 export function parse(rawDotenv: string): DotenvConfig {
-  return rawDotenv.split("\n").reduce((acc: any, line) => {
-    if (!isVariableStart(line)) return acc;
-    let [key, ...vals] = line.split("=");
-    let value = trim(vals.join("="));
-    if (/^"/.test(value)) {
+  const env: DotenvConfig = {};
+
+  for (const line of rawDotenv.split("\n")) {
+    if (!isVariableStart(line)) continue;
+    const key = line.slice(0, line.indexOf("=")).trim();
+    let value = line.slice(line.indexOf("=") + 1).trim();
+    if (hasSingleQuotes(value)) {
+      value = removeSingleQuotes(value);
+    } else if (hasDoubleQuotes(value)) {
+      value = removeDoubleQuotes(value);
       value = expandNewlines(value);
-    }
-    acc[trim(key)] = trim(cleanQuotes(value));
-    return acc;
-  }, {});
+    } else value = value.trim();
+    env[key] = value;
+  }
+
+  return env;
 }
 
 export function config(options: ConfigOptions = {}): DotenvConfig {
@@ -48,7 +54,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 
   if (o.defaults) {
     const confDefaults = parseFile(o.defaults);
-    for (let key in confDefaults) {
+    for (const key in confDefaults) {
       if (!(key in conf)) {
         conf[key] = confDefaults[key];
       }
@@ -56,7 +62,7 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   }
 
   if (o.export) {
-    for (let key in conf) {
+    for (const key in conf) {
       if (Deno.env.get(key) !== undefined) continue;
       Deno.env.set(key, conf[key]);
     }
@@ -75,11 +81,23 @@ function parseFile(filepath: string) {
 }
 
 function isVariableStart(str: string): boolean {
-  return /^\s*?[a-zA-Z_][a-zA-Z_0-9 ]*=/.test(str);
+  return /^\s*[a-zA-Z_][a-zA-Z_0-9 ]*\s*=/.test(str);
 }
 
-function cleanQuotes(value: string = ""): string {
-  return value.replace(/^['"]([\s\S]*)['"]$/gm, "$1");
+function hasSingleQuotes(str: string): boolean {
+  return /^'([\s\S]*)'$/.test(str);
+}
+
+function hasDoubleQuotes(str: string): boolean {
+  return /^"([\s\S]*)"$/.test(str);
+}
+
+function removeSingleQuotes(value = ""): string {
+  return value.replace(/^'([\s\S]*)'$/, "$1");
+}
+
+function removeDoubleQuotes(value = ""): string {
+  return value.replace(/^"([\s\S]*)"$/, "$1");
 }
 
 function expandNewlines(str: string): string {

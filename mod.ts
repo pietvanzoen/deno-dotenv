@@ -92,11 +92,11 @@ function hasDoubleQuotes(str: string): boolean {
   return /^"([\s\S]*)"$/.test(str);
 }
 
-function removeSingleQuotes(value = ""): string {
+function removeSingleQuotes(value: string): string {
   return value.replace(/^'([\s\S]*)'$/, "$1");
 }
 
-function removeDoubleQuotes(value = ""): string {
+function removeDoubleQuotes(value: string): string {
   return value.replace(/^"([\s\S]*)"$/, "$1");
 }
 

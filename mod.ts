@@ -21,9 +21,9 @@ export function parse(rawDotenv: string): DotenvConfig {
     const key = line.slice(0, line.indexOf("=")).trim();
     let value = line.slice(line.indexOf("=") + 1).trim();
     if (hasSingleQuotes(value)) {
-      value = removeSingleQuotes(value);
+      value = value.slice(1, -1);
     } else if (hasDoubleQuotes(value)) {
-      value = removeDoubleQuotes(value);
+      value = value.slice(1, -1);
       value = expandNewlines(value);
     } else value = value.trim();
     env[key] = value;
@@ -92,16 +92,8 @@ function hasDoubleQuotes(str: string): boolean {
   return /^"([\s\S]*)"$/.test(str);
 }
 
-function removeSingleQuotes(value: string): string {
-  return value.replace(/^'([\s\S]*)'$/, "$1");
-}
-
-function removeDoubleQuotes(value: string): string {
-  return value.replace(/^"([\s\S]*)"$/, "$1");
-}
-
 function expandNewlines(str: string): string {
-  return str.replace("\\n", "\n");
+  return str.replaceAll("\\n", "\n");
 }
 
 function assertSafe(

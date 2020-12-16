@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.60.0/testing/asserts.ts";
+import { assertEquals } from "./test_deps.ts";
 import { compact, difference, trim } from "./util.ts";
 
 Deno.test("compactTest", () => {

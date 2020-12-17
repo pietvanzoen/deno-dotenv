@@ -1,19 +1,23 @@
 import { assertEquals } from "./test_deps.ts";
-import { compact, difference } from "./util.ts";
+import { difference, removeEmptyValues } from "./util.ts";
 
-Deno.test("compactTest", () => {
-  const actual = compact({
-    foo: true,
-    bar: false,
-    baz: null,
-    qux: "hi",
+Deno.test("removeEmptyValuesTest", () => {
+  const actual = removeEmptyValues({
+    a: true,
+    b: false,
+    c: null,
+    d: "hi",
+    e: "",
+    f: 0,
   });
   const expected = {
-    foo: true,
-    qux: "hi",
+    a: true,
+    b: false,
+    d: "hi",
+    f: 0,
   };
 
-  assertEquals(actual, expected, "removes falsy values");
+  assertEquals(actual, expected, "removes null, undefined, and false");
 });
 
 Deno.test("differenceTest", () => {

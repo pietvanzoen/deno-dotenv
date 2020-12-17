@@ -8,7 +8,6 @@ install:
 
 script:
   - make test
-  - [ -e $TRAVIS_TAG ] && curl -L -s -o /dev/null -w "%{http_code}" https://deno.land/x/dotenv@$TRAVIS_TAG/mod.ts | grep 200
 
 cache:
   directories:

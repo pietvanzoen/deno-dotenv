@@ -13,9 +13,6 @@ cache:
   directories:
     - "$HOME/.deno"
 
-after_success:
-  - curl -sL scripts.piet.me/ci/release | bash
-
 deploy:
   provider: releases
   api_key: "$GITHUB_TOKEN"

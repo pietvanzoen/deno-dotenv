@@ -1,0 +1,12 @@
+name: dotenv
+description: Dotenv file handling for deno
+stable: false
+repository: https://github.com/pietvanzoen/deno-dotenv
+fmt: true
+files:
+  - mod.ts
+  - util.ts
+  - load.ts
+  - dotenv.ts
+  - README.md
+  - LICENCE

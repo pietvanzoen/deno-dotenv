@@ -47,11 +47,6 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
 
   const conf = parseFile(o.path);
 
-  if (o.safe) {
-    const confExample = parseFile(o.example);
-    assertSafe(conf, confExample, o.allowEmptyValues);
-  }
-
   if (o.defaults) {
     const confDefaults = parseFile(o.defaults);
     for (const key in confDefaults) {
@@ -59,6 +54,11 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
         conf[key] = confDefaults[key];
       }
     }
+  }
+
+  if (o.safe) {
+    const confExample = parseFile(o.example);
+    assertSafe(conf, confExample, o.allowEmptyValues);
   }
 
   if (o.export) {

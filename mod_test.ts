@@ -196,6 +196,14 @@ Deno.test("configureSafe", () => {
     });
   }, MissingEnvVarsError);
 
+  // Does not throw if required vars are provided by example
+  config({
+    path: "./.env.safe.empty.test",
+    safe: true,
+    example: "./.env.example3.test",
+    defaults: "./.env.defaults",
+  });
+
   // Does not throw if any of the required vars is empty, *and* allowEmptyValues is present
   config({
     path: "./.env.safe.empty.test",

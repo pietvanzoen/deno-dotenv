@@ -32,18 +32,17 @@ export function parse(rawDotenv: string): DotenvConfig {
   return env;
 }
 
+const defaultConfigOptions = {
+  path: `.env`,
+  export: false,
+  safe: false,
+  example: `.env.example`,
+  allowEmptyValues: false,
+  defaults: `.env.defaults`,
+};
+
 export function config(options: ConfigOptions = {}): DotenvConfig {
-  const o: Required<ConfigOptions> = Object.assign(
-    {
-      path: `.env`,
-      export: false,
-      safe: false,
-      example: `.env.example`,
-      allowEmptyValues: false,
-      defaults: `.env.defaults`,
-    },
-    options,
-  );
+  const o: Required<ConfigOptions> = { ...defaultConfigOptions, ...options };
 
   const conf = parseFile(o.path);
 
@@ -71,9 +70,51 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   return conf;
 }
 
+export async function configAsync(
+  options: ConfigOptions = {},
+): Promise<DotenvConfig> {
+  const o: Required<ConfigOptions> = { ...defaultConfigOptions, ...options };
+
+  const conf = await parseFileAsync(o.path);
+
+  if (o.defaults) {
+    const confDefaults = await parseFileAsync(o.defaults);
+    for (const key in confDefaults) {
+      if (!(key in conf)) {
+        conf[key] = confDefaults[key];
+      }
+    }
+  }
+
+  if (o.safe) {
+    const confExample = await parseFileAsync(o.example);
+    assertSafe(conf, confExample, o.allowEmptyValues);
+  }
+
+  if (o.export) {
+    for (const key in conf) {
+      if (Deno.env.get(key) !== undefined) continue;
+      Deno.env.set(key, conf[key]);
+    }
+  }
+
+  return conf;
+}
+
 function parseFile(filepath: string) {
   try {
     return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
+  } catch (e) {
+    if (e instanceof Deno.errors.NotFound) return {};
+    throw e;
+  }
+}
+
+async function parseFileAsync(filepath: string) {
+  try {
+    return parse(
+      new TextDecoder("utf-8").decode(await Deno.readFile(filepath)),
+    );
   } catch (e) {
     if (e instanceof Deno.errors.NotFound) return {};
     throw e;

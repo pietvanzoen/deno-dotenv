@@ -32,6 +32,17 @@ export function parse(rawDotenv: string): DotenvConfig {
   return env;
 }
 
+export function stringify(dict: DotenvConfig): string {
+  let lines = "";
+
+  for (const key in dict) {
+    const value = dict[key];
+    lines += `${key}=${value}\n`;
+  }
+
+  return lines;
+}
+
 export function config(options: ConfigOptions = {}): DotenvConfig {
   const o: Required<ConfigOptions> = Object.assign(
     {
@@ -71,11 +82,76 @@ export function config(options: ConfigOptions = {}): DotenvConfig {
   return conf;
 }
 
+export function update(dict: DotenvConfig, options: ConfigOptions = {}) {
+  const o: Required<ConfigOptions> = Object.assign(
+    {
+      path: `.env`,
+      export: false,
+      safe: false,
+      example: `.env.example`,
+      allowEmptyValues: false,
+      defaults: options.path ? null : `.env.defaults`,
+    },
+    options,
+  );
+
+  const conf = parseFile(o.path);
+  let confDefaults: DotenvConfig = {};
+
+  if (o.defaults) {
+    confDefaults = parseFile(o.defaults);
+    for (const key in dict) {
+      if (key in conf) {
+        conf[key] = dict[key];
+      } else if (key in confDefaults) {
+        confDefaults[key] = dict[key];
+      }
+    }
+    writeFile(o.defaults, confDefaults);
+  }
+  writeFile(o.path, conf);
+
+  if (o.safe) {
+    const confExample = parseFile(o.example);
+    assertSafe(conf, confExample, o.allowEmptyValues);
+  }
+
+  if (o.export) {
+    for (const key in conf) {
+      if (Deno.env.get(key) !== undefined) continue;
+      Deno.env.set(key, conf[key]);
+    }
+    for (const key in confDefaults) {
+      if (Deno.env.get(key) !== undefined) continue;
+      Deno.env.set(key, conf[key]);
+    }
+  }
+
+  return conf;
+}
+
 function parseFile(filepath: string) {
   try {
     return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
   } catch (e) {
     if (e instanceof Deno.errors.NotFound) return {};
+    throw e;
+  }
+}
+
+function writeFile(
+  filepath: string,
+  content: DotenvConfig,
+  options: Deno.WriteFileOptions = { create: false },
+) {
+  try {
+    Deno.writeFileSync(
+      filepath,
+      new TextEncoder().encode(stringify(content)),
+      options,
+    );
+  } catch (e) {
+    if (e instanceof Deno.errors.NotFound) return;
     throw e;
   }
 }

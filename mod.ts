@@ -36,7 +36,13 @@ export function stringify(dict: DotenvConfig): string {
   let lines = "";
 
   for (const key in dict) {
-    const value = dict[key];
+    let value = dict[key];
+    if (
+      value.indexOf("\n") >= 0 ||
+      value.search(new RegExp("^ | $")) >= 0
+    ) {
+      value = wrapValue(value);
+    }
     lines += `${key}=${value}\n`;
   }
 
@@ -128,6 +134,17 @@ export function update(dict: DotenvConfig, options: ConfigOptions = {}) {
   }
 
   return conf;
+}
+
+function wrapValue(value: string): string {
+  if (value.indexOf("'") >= 0) {
+    value = `"${
+      value.indexOf('"') >= 0 ? value.replaceAll('"', '\\"') : value
+    }"`;
+  } else {
+    value = `'${value}'`;
+  }
+  return value;
 }
 
 function parseFile(filepath: string) {

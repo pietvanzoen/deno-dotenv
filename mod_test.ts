@@ -1,5 +1,10 @@
-import { assertEquals, assertThrows } from "./test_deps.ts";
-import { config, MissingEnvVarsError, parse } from "./mod.ts";
+import {
+  assertEquals,
+  assertMatch,
+  assertNotMatch,
+  assertThrows,
+} from "./test_deps.ts";
+import { config, MissingEnvVarsError, parse, stringify } from "./mod.ts";
 
 Deno.test("parser", () => {
   const testDotenv = new TextDecoder("utf-8").decode(
@@ -100,6 +105,140 @@ Deno.test("parser", () => {
   assertEquals(
     config.TAB_INDENTED_VALUE,
     "indented value",
+    "accepts values that are indented with tabs",
+  );
+});
+
+Deno.test("stringify", () => {
+  const testDotenv = new TextDecoder("utf-8").decode(
+    Deno.readFileSync("./.env.test"),
+  );
+  const config = parse(testDotenv);
+  const stringified = stringify(config);
+
+  assertMatch(
+    stringified,
+    new RegExp("BASIC\s*=\s*('|\")?basic('|\")?"),
+    "stringify a basic variable",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("AFTER_EMPTY\s*=\s*('|\")?empty('|\")?"),
+    "skips empty lines",
+  );
+
+  assertNotMatch(
+    stringified,
+    new RegExp("#COMMENT\s*=\s*('|\")?not-parsed('|\")?"),
+    "skips lines with comments",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("EMPTY_VALUE\s*=\s*(\"{2}|'{2})?"),
+    "empty values are empty strings",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("QUOTED_SINGLE\s*=\s*('|\")?single quoted('|\")?"),
+    "single quotes are escaped",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("QUOTED_DOUBLE\s*=\s*('|\")?double quoted('|\")?"),
+    "double quotes are escaped",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("MULTILINE\s*=\s*('|\")hello\nworld('|\")"),
+    "new lines are expanded in single/double quotes",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp('JSON\s*=\s*\'?{"foo": "bar"}\'?'),
+    "inner quotes are maintained",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("WHITESPACE\s*=\s*('|\")\s{4}whitespace\s{3}('|\")"),
+    "whitespace in single-quoted values is preserved",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("WHITESPACE_DOUBLE\s*=\s*('|\")\s{4}whitespace\s{3}('|\")"),
+    "whitespace in double-quoted values is preserved",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("MULTILINE_SINGLE_QUOTE\s*=\s*('|\")hello\nworld('|\")"),
+    "new lines are escaped in single/double quotes",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("EQUALS\s*=\s*('|\")?equ==als('|\")?"),
+    "handles equals inside string",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("THE_ANSWER\s*=\s*('|\")?42('|\")?"),
+    "number value is not stringified",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("VAR_WITH_SPACE\s*=\s*('|\")?var with space('|\")?"),
+    "variables defined with spaces are stringified",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("VAR_WITH_ENDING_WHITESPACE\s*=\s*('|\")?value('|\")?"),
+    "variables defined with ending whitespace are trimmed",
+  );
+  
+  assertMatch(
+    stringified,
+    new RegExp("V4R_W1TH_NUM8ER5\s*=\s*('|\")?var with numbers('|\")?"),
+    "accepts variables containing number",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("1INVALID\s*=\s*('|\")?var starting with a number('|\")?"),
+    "variables beginning with a number are not stringified",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("INDENTED_VAR\s*=\s*('|\")?indented var('|\")?"),
+    "accepts variables that are indented with space",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("INDENTED_VALUE\s*=\s*('|\")?indented value('|\")?"),
+    "accepts values that are indented with space",
+  );
+
+  assertMatch(
+    stringified,
+    new RegExp("TAB_INDENTED_VAR\s*=\s*('|\")?indented var('|\")?"),
+    "accepts variables that are indented with tabs",
+  );
+  
+  assertMatch(
+    stringified,
+    new RegExp("TAB_INDENTED_VALUE\s*=\s*('|\")?indented value('|\")?"),
     "accepts values that are indented with tabs",
   );
 });

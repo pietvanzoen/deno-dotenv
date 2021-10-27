@@ -178,7 +178,7 @@ Deno.test("stringify", () => {
 
   assertMatch(
     stringified,
-    new RegExp("MULTILINE_SINGLE_QUOTE *= *('|\")hello\\\\nworld('|\")"),
+    new RegExp("MULTILINE_SINGLE_QUOTE *= *('|\")?hello\\\\nworld('|\")?"),
     "new lines are escaped in single/double quotes",
   );
 

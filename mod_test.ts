@@ -4,9 +4,11 @@ import {
   assertNotEquals,
   assertNotMatch,
   assertThrows,
+  assertRejects,
 } from "./test_deps.ts";
 import {
   config,
+  configAsync,
   MissingEnvVarsError,
   parse,
   stringify,
@@ -442,6 +444,142 @@ Deno.test("configureSafe", () => {
   // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
   Deno.env.set("ANOTHER", "");
   config({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example2.test",
+    allowEmptyValues: true,
+  });
+});
+
+Deno.test("configure async", async () => {
+  let conf = await configAsync();
+  assertEquals(conf.GREETING, "hello world", "fetches .env by default");
+
+  assertEquals(conf.DEFAULT1, "Some Default", "default value loaded");
+
+  conf = await configAsync({ path: "./.env.test" });
+  assertEquals(conf.BASIC, "basic", "accepts a path to fetch env from");
+
+  conf = await configAsync({ export: true });
+  assertEquals(
+    Deno.env.get("GREETING"),
+    "hello world",
+    "exports variables to env when requested",
+  );
+
+  Deno.env.set("DO_NOT_OVERRIDE", "Hello there");
+  conf = await configAsync({ export: true });
+  assertEquals(
+    Deno.env.get("DO_NOT_OVERRIDE"),
+    "Hello there",
+    "does not export .env value if environment variable is already set",
+  );
+
+  assertEquals(
+    await configAsync(
+      {
+        path: "./.some.non.existent.env",
+        defaults: "./.some.non.existent.env",
+      },
+    ),
+    {},
+    "returns empty object if file doesn't exist",
+  );
+
+  assertEquals(
+    await configAsync({ path: "./.some.non.existent.env" }),
+    { DEFAULT1: "Some Default" },
+    "returns with defaults if file doesn't exist",
+  );
+});
+
+Deno.test("configureSafe async", async () => {
+  // Default
+  let conf = await configAsync({
+    safe: true,
+  });
+  assertEquals(conf.GREETING, "hello world", "fetches .env by default");
+
+  // Custom .env.example
+  conf = await configAsync({
+    safe: true,
+    example: "./.env.example.test",
+  });
+
+  assertEquals(
+    conf.GREETING,
+    "hello world",
+    "accepts a path to fetch env example from",
+  );
+
+  // Custom .env and .env.example
+  conf = await configAsync({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example.test",
+  });
+
+  assertEquals(
+    conf.GREETING,
+    "hello world",
+    "accepts paths to fetch env and env example from",
+  );
+
+  // Throws if not all required vars are there
+  assertRejects(async () => {
+    await configAsync({
+      path: "./.env.safe.test",
+      safe: true,
+      example: "./.env.example2.test",
+    });
+  }, MissingEnvVarsError);
+
+  // Throws if any of the required vars is empty
+  assertRejects(async () => {
+    await configAsync({
+      path: "./.env.safe.empty.test",
+      safe: true,
+      example: "./.env.example2.test",
+    });
+  }, MissingEnvVarsError);
+
+  // Does not throw if required vars are provided by example
+  await configAsync({
+    path: "./.env.safe.empty.test",
+    safe: true,
+    example: "./.env.example3.test",
+    defaults: "./.env.defaults",
+  });
+
+  // Does not throw if any of the required vars is empty, *and* allowEmptyValues is present
+  await configAsync({
+    path: "./.env.safe.empty.test",
+    safe: true,
+    example: "./.env.example2.test",
+    allowEmptyValues: true,
+  });
+
+  // Does not throw if any of the required vars passed externaly
+  Deno.env.set("ANOTHER", "VAR");
+  await configAsync({
+    path: "./.env.safe.test",
+    safe: true,
+    example: "./.env.example2.test",
+  });
+
+  // Throws if any of the required vars passed externaly is empty
+  Deno.env.set("ANOTHER", "");
+  assertRejects(async () => {
+    await configAsync({
+      path: "./.env.safe.test",
+      safe: true,
+      example: "./.env.example2.test",
+    });
+  });
+
+  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
+  Deno.env.set("ANOTHER", "");
+  await configAsync({
     path: "./.env.safe.test",
     safe: true,
     example: "./.env.example2.test",

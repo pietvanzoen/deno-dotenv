@@ -1,3 +1,3 @@
-import { config } from "./mod.ts";
+import { configAsync } from "./mod.ts";
 
-config({ export: true });
+await configAsync({ export: true });

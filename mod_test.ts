@@ -1,10 +1,17 @@
 import {
   assertEquals,
   assertMatch,
+  assertNotEquals,
   assertNotMatch,
   assertThrows,
 } from "./test_deps.ts";
-import { config, MissingEnvVarsError, parse, stringify } from "./mod.ts";
+import {
+  config,
+  MissingEnvVarsError,
+  parse,
+  stringify,
+  update,
+} from "./mod.ts";
 
 Deno.test("parser", () => {
   const testDotenv = new TextDecoder("utf-8").decode(
@@ -205,7 +212,7 @@ Deno.test("stringify", () => {
     new RegExp("VAR_WITH_ENDING_WHITESPACE *= *('|\")?value('|\")?"),
     "variables defined with ending whitespace are trimmed",
   );
-  
+
   assertMatch(
     stringified,
     new RegExp("V4R_W1TH_NUM8ER5 *= *('|\")?var with numbers('|\")?"),
@@ -235,12 +242,75 @@ Deno.test("stringify", () => {
     new RegExp("TAB_INDENTED_VAR *= *('|\")?indented var('|\")?"),
     "accepts variables that are indented with tabs",
   );
-  
+
   assertMatch(
     stringified,
     new RegExp("TAB_INDENTED_VALUE *= *('|\")?indented value('|\")?"),
     "accepts values that are indented with tabs",
   );
+});
+
+Deno.test("update", () => {
+  Deno.copyFileSync("./.env", "./.env.copy");
+  try {
+    update({ GREETING: "world hello", DEFAULT1: "Default Some" });
+    let conf = config();
+    assertEquals(
+      conf.GREETING,
+      "world hello",
+      "failed to update .env by default",
+    );
+    assertNotEquals(
+      conf.DEFAULT1,
+      "Default Some",
+      "default value should not be updated",
+    );
+
+    Deno.copyFileSync("./.env.defaults", "./.env.defaults.copy");
+    try {
+      update(
+        { GREETING: "hello new world", DEFAULT1: "Some New Default" },
+        { defaults: "./.env.defaults.copy" },
+      );
+      conf = config({ defaults: "./.env.defaults.copy" });
+      assertEquals(conf.GREETING, "hello new world", "updated .env by default");
+      assertEquals(
+        conf.DEFAULT1,
+        "Some New Default",
+        "default value is updated",
+      );
+    } finally {
+      Deno.removeSync("./.env.defaults.copy");
+    }
+
+    update({ GREETING: "dlrow olleh" }, { export: true });
+    assertEquals(
+      Deno.env.get("GREETING"),
+      "dlrow olleh",
+      "exports variables to env when requested",
+    );
+
+    update({ DO_NOT_CREATE: "Superhero Landing!" }, { export: true });
+    assertNotEquals(
+      Deno.env.get("DO_NOT_CREATE"),
+      "I am here now",
+      "does not create .env value because this is update",
+    );
+  } finally {
+    Deno.copyFileSync("./.env.copy", "./.env");
+    Deno.removeSync("./.env.copy");
+  }
+
+  Deno.copyFileSync("./.env.test", "./.env.test.copy");
+  try {
+    let conf = config({ path: "./.env.test.copy" });
+    assertEquals(conf.BASIC, "basic", "accepts a path to fetch env from");
+    update({ BASIC: "cisab" }, { path: "./.env.test.copy" });
+    conf = config({ path: "./.env.test.copy" });
+    assertEquals(conf.BASIC, "cisab", "accepts a path to update env from");
+  } finally {
+    Deno.removeSync("./.env.test.copy");
+  }
 });
 
 Deno.test("configure", () => {

@@ -295,12 +295,13 @@ Deno.test("update", () => {
     update({ DO_NOT_CREATE: "Superhero Landing!" }, { export: true });
     assertNotEquals(
       Deno.env.get("DO_NOT_CREATE"),
-      "I am here now",
+      "Superhero Landing!",
       "does not create .env value because this is update",
     );
   } finally {
     Deno.copyFileSync("./.env.copy", "./.env");
     Deno.removeSync("./.env.copy");
+    Deno.env.delete("GREETING");
   }
 
   Deno.copyFileSync("./.env.test", "./.env.test.copy");

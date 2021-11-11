@@ -96,20 +96,23 @@ export function update(dict: DotenvConfig, options: ConfigOptions = {}) {
       safe: false,
       example: `.env.example`,
       allowEmptyValues: false,
-      defaults: options.path ? null : `.env.defaults`,
+      defaults: null,
     },
     options,
   );
 
   const conf = parseFile(o.path);
+  for (const key in dict) {
+    if (key in conf) {
+      conf[key] = dict[key];
+    }
+  }
+  
   let confDefaults: DotenvConfig = {};
-
   if (o.defaults) {
     confDefaults = parseFile(o.defaults);
     for (const key in dict) {
-      if (key in conf) {
-        conf[key] = dict[key];
-      } else if (key in confDefaults) {
+      if (!(key in conf) && (key in confDefaults)) {
         confDefaults[key] = dict[key];
       }
     }

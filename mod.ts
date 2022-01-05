@@ -197,7 +197,7 @@ function assertSafe(
   const missingExports = difference([...confExample.exports], [...exportsWithEnv]);
 
   if (missingExports.length > 0) {
-    throw new MissingEnvVarsError(
+    throw new MissingEnvVarExportsError(
 `The following variables were exported in the example file but are not exported in the environment:
 ${missingExports.join(", ")},
 make sure to export them in your env file or in the environment of the parent process (e.g. shell).`);
@@ -209,5 +209,12 @@ export class MissingEnvVarsError extends Error {
     super(message);
     this.name = "MissingEnvVarsError";
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class MissingEnvVarExportsError extends Error {
+  constructor(message?: string) {
+    super(message);
+    Object.setPrototypeOf(this, MissingEnvVarExportsError.prototype);
   }
 }

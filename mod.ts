@@ -16,7 +16,7 @@ export interface ConfigOptions {
 interface ParseResult {
   env: DotenvConfig;
   exports: Set<string>;
-};
+}
 
 const emptyParseResult = (): ParseResult => ({ env: {}, exports: new Set() });
 const EXPORT_REGEX = /^\s*export\s+/;
@@ -80,19 +80,26 @@ export async function configAsync(
 ): Promise<DotenvConfig> {
   const o = mergeDefaults(options);
   const conf = await parseFileAsync(o.path);
-  const confDefaults = o.defaults ? await parseFileAsync(o.defaults) : emptyParseResult();
-  const confExample = o.safe ? await parseFileAsync(o.example) : emptyParseResult();
+  const confDefaults = o.defaults
+    ? await parseFileAsync(o.defaults)
+    : emptyParseResult();
+  const confExample = o.safe
+    ? await parseFileAsync(o.example)
+    : emptyParseResult();
 
   return processConfig(o, conf, confDefaults, confExample);
 }
 
-const mergeDefaults = (options: ConfigOptions): Required<ConfigOptions> => ({ ...defaultConfigOptions, ...options });
+const mergeDefaults = (options: ConfigOptions): Required<ConfigOptions> => ({
+  ...defaultConfigOptions,
+  ...options,
+});
 
 function processConfig(
   options: Required<ConfigOptions>,
   conf: ParseResult,
   confDefaults: ParseResult,
-  confExample: ParseResult
+  confExample: ParseResult,
 ): DotenvConfig {
   if (options.defaults) {
     for (const key in confDefaults.env) {
@@ -194,13 +201,16 @@ function assertSafe(
     throw new MissingEnvVarsError(errorMessages.filter(Boolean).join("\n\n"));
   }
 
-  const missingExports = difference([...confExample.exports], [...exportsWithEnv]);
+  const missingExports = difference([...confExample.exports], [
+    ...exportsWithEnv,
+  ]);
 
   if (missingExports.length > 0) {
     throw new MissingEnvVarExportsError(
-`The following variables were exported in the example file but are not exported in the environment:
+      `The following variables were exported in the example file but are not exported in the environment:
 ${missingExports.join(", ")},
-make sure to export them in your env file or in the environment of the parent process (e.g. shell).`);
+make sure to export them in your env file or in the environment of the parent process (e.g. shell).`,
+    );
   }
 }
 

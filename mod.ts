@@ -42,43 +42,34 @@ const defaultConfigOptions = {
 };
 
 export function config(options: ConfigOptions = {}): DotenvConfig {
-  const o: Required<ConfigOptions> = { ...defaultConfigOptions, ...options };
-
+  const o = mergeDefaults(options);
   const conf = parseFile(o.path);
+  const confDefaults = o.defaults ? parseFile(o.defaults) : {};
+  const confExample = o.safe ? parseFile(o.example) : {};
 
-  if (o.defaults) {
-    const confDefaults = parseFile(o.defaults);
-    for (const key in confDefaults) {
-      if (!(key in conf)) {
-        conf[key] = confDefaults[key];
-      }
-    }
-  }
-
-  if (o.safe) {
-    const confExample = parseFile(o.example);
-    assertSafe(conf, confExample, o.allowEmptyValues);
-  }
-
-  if (o.export) {
-    for (const key in conf) {
-      if (Deno.env.get(key) !== undefined) continue;
-      Deno.env.set(key, conf[key]);
-    }
-  }
-
-  return conf;
+  return processConfig(o, conf, confDefaults, confExample);
 }
 
 export async function configAsync(
   options: ConfigOptions = {},
 ): Promise<DotenvConfig> {
-  const o: Required<ConfigOptions> = { ...defaultConfigOptions, ...options };
-
+  const o = mergeDefaults(options);
   const conf = await parseFileAsync(o.path);
+  const confDefaults = o.defaults ? await parseFileAsync(o.defaults) : {};
+  const confExample = o.safe ? await parseFileAsync(o.example) : {};
 
-  if (o.defaults) {
-    const confDefaults = await parseFileAsync(o.defaults);
+  return processConfig(o, conf, confDefaults, confExample);
+}
+
+const mergeDefaults = (options: ConfigOptions): Required<ConfigOptions> => ({ ...defaultConfigOptions, ...options });
+
+function processConfig(
+  options: Required<ConfigOptions>,
+  conf: DotenvConfig,
+  confDefaults: DotenvConfig,
+  confExample: DotenvConfig
+): DotenvConfig {
+  if (options.defaults) {
     for (const key in confDefaults) {
       if (!(key in conf)) {
         conf[key] = confDefaults[key];
@@ -86,12 +77,11 @@ export async function configAsync(
     }
   }
 
-  if (o.safe) {
-    const confExample = await parseFileAsync(o.example);
-    assertSafe(conf, confExample, o.allowEmptyValues);
+  if (options.safe) {
+    assertSafe(conf, confExample, options.allowEmptyValues);
   }
 
-  if (o.export) {
+  if (options.export) {
     for (const key in conf) {
       if (Deno.env.get(key) !== undefined) continue;
       Deno.env.set(key, conf[key]);

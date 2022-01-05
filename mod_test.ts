@@ -5,7 +5,7 @@ Deno.test("parser", () => {
   const testDotenv = new TextDecoder("utf-8").decode(
     Deno.readFileSync("./.env.test"),
   );
-  const config = parse(testDotenv);
+  const { env: config } = parse(testDotenv);
   assertEquals(config.BASIC, "basic", "parses a basic variable");
   assertEquals(config.AFTER_EMPTY, "empty", "skips empty lines");
   assertEquals(config["#COMMENT"], undefined, "skips lines with comments");

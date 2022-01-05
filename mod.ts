@@ -13,12 +13,25 @@ export interface ConfigOptions {
   defaults?: string;
 }
 
-export function parse(rawDotenv: string): DotenvConfig {
+interface ParseResult {
+  env: DotenvConfig;
+  exports: Set<string>;
+};
+
+const emptyParseResult = (): ParseResult => ({ env: {}, exports: new Set() });
+const EXPORT_REGEX = /^\s*export\s+/;
+
+export function parse(rawDotenv: string): ParseResult {
   const env: DotenvConfig = {};
+  const exports = new Set<string>();
 
   for (const line of rawDotenv.split("\n")) {
     if (!isVariableStart(line)) continue;
-    const key = line.slice(0, line.indexOf("=")).trim();
+    const lhs = line.slice(0, line.indexOf("=")).trim();
+    const { key, exported } = parseKey(lhs);
+    if (exported) {
+      exports.add(key);
+    }
     let value = line.slice(line.indexOf("=") + 1).trim();
     if (hasSingleQuotes(value)) {
       value = value.slice(1, -1);
@@ -29,7 +42,19 @@ export function parse(rawDotenv: string): DotenvConfig {
     env[key] = value;
   }
 
-  return env;
+  return { env, exports };
+}
+
+// accepts the left-hand side of an assignment
+function parseKey(lhs: string): {
+  key: string;
+  exported: boolean;
+} {
+  if (EXPORT_REGEX.test(lhs)) {
+    const key = lhs.replace(EXPORT_REGEX, "");
+    return { key, exported: true };
+  }
+  return { key: lhs, exported: false };
 }
 
 const defaultConfigOptions = {
@@ -44,8 +69,8 @@ const defaultConfigOptions = {
 export function config(options: ConfigOptions = {}): DotenvConfig {
   const o = mergeDefaults(options);
   const conf = parseFile(o.path);
-  const confDefaults = o.defaults ? parseFile(o.defaults) : {};
-  const confExample = o.safe ? parseFile(o.example) : {};
+  const confDefaults = o.defaults ? parseFile(o.defaults) : emptyParseResult();
+  const confExample = o.safe ? parseFile(o.example) : emptyParseResult();
 
   return processConfig(o, conf, confDefaults, confExample);
 }
@@ -55,8 +80,8 @@ export async function configAsync(
 ): Promise<DotenvConfig> {
   const o = mergeDefaults(options);
   const conf = await parseFileAsync(o.path);
-  const confDefaults = o.defaults ? await parseFileAsync(o.defaults) : {};
-  const confExample = o.safe ? await parseFileAsync(o.example) : {};
+  const confDefaults = o.defaults ? await parseFileAsync(o.defaults) : emptyParseResult();
+  const confExample = o.safe ? await parseFileAsync(o.example) : emptyParseResult();
 
   return processConfig(o, conf, confDefaults, confExample);
 }
@@ -65,16 +90,17 @@ const mergeDefaults = (options: ConfigOptions): Required<ConfigOptions> => ({ ..
 
 function processConfig(
   options: Required<ConfigOptions>,
-  conf: DotenvConfig,
-  confDefaults: DotenvConfig,
-  confExample: DotenvConfig
+  conf: ParseResult,
+  confDefaults: ParseResult,
+  confExample: ParseResult
 ): DotenvConfig {
   if (options.defaults) {
-    for (const key in confDefaults) {
-      if (!(key in conf)) {
-        conf[key] = confDefaults[key];
+    for (const key in confDefaults.env) {
+      if (!(key in conf.env)) {
+        conf.env[key] = confDefaults.env[key];
       }
     }
+    conf.exports = new Set([...conf.exports, ...confDefaults.exports]);
   }
 
   if (options.safe) {
@@ -82,31 +108,37 @@ function processConfig(
   }
 
   if (options.export) {
-    for (const key in conf) {
-      if (Deno.env.get(key) !== undefined) continue;
-      Deno.env.set(key, conf[key]);
+    for (const key in conf.env) {
+      denoSetEnv(key, conf.env[key]);
+    }
+  } else {
+    for (const key of conf.exports) {
+      denoSetEnv(key, conf.env[key]);
     }
   }
 
-  return conf;
+  return conf.env;
 }
 
-function parseFile(filepath: string) {
+const denoSetEnv = (key: string, value: string) =>
+  (Deno.env.get(key) === undefined) ? Deno.env.set(key, value) : undefined;
+
+function parseFile(filepath: string): ParseResult {
   try {
     return parse(new TextDecoder("utf-8").decode(Deno.readFileSync(filepath)));
   } catch (e) {
-    if (e instanceof Deno.errors.NotFound) return {};
+    if (e instanceof Deno.errors.NotFound) return emptyParseResult();
     throw e;
   }
 }
 
-async function parseFileAsync(filepath: string) {
+async function parseFileAsync(filepath: string): Promise<ParseResult> {
   try {
     return parse(
       new TextDecoder("utf-8").decode(await Deno.readFile(filepath)),
     );
   } catch (e) {
-    if (e instanceof Deno.errors.NotFound) return {};
+    if (e instanceof Deno.errors.NotFound) return emptyParseResult();
     throw e;
   }
 }
@@ -128,27 +160,29 @@ function expandNewlines(str: string): string {
 }
 
 function assertSafe(
-  conf: DotenvConfig,
-  confExample: DotenvConfig,
+  conf: ParseResult,
+  confExample: ParseResult,
   allowEmptyValues: boolean,
 ) {
   const currentEnv = Deno.env.toObject();
+  const currentExportsList = Object.keys(currentEnv);
 
   // Not all the variables have to be defined in .env, they can be supplied externally
-  const confWithEnv = Object.assign({}, currentEnv, conf);
+  const confWithEnv = Object.assign({}, currentEnv, conf.env);
+  const exportsWithEnv = new Set([...currentExportsList, ...conf.exports]);
 
-  const missing = difference(
-    Object.keys(confExample),
+  const missingVars = difference(
+    Object.keys(confExample.env),
     // If allowEmptyValues is false, filter out empty values from configuration
     Object.keys(
       allowEmptyValues ? confWithEnv : removeEmptyValues(confWithEnv),
     ),
   );
 
-  if (missing.length > 0) {
+  if (missingVars.length > 0) {
     const errorMessages = [
       `The following variables were defined in the example file but are not present in the environment:\n  ${
-        missing.join(
+        missingVars.join(
           ", ",
         )
       }`,
@@ -158,6 +192,15 @@ function assertSafe(
     ];
 
     throw new MissingEnvVarsError(errorMessages.filter(Boolean).join("\n\n"));
+  }
+
+  const missingExports = difference([...confExample.exports], [...exportsWithEnv]);
+
+  if (missingExports.length > 0) {
+    throw new MissingEnvVarsError(
+`The following variables were exported in the example file but are not exported in the environment:
+${missingExports.join(", ")},
+make sure to export them in your env file or in the environment of the parent process (e.g. shell).`);
   }
 }
 

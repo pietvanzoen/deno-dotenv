@@ -245,7 +245,7 @@ Deno.test("configureSafe", () => {
     allowEmptyValues: true,
   });
 
-  // Does not throw if any of the required vars passed externaly
+  // Does not throw if any of the required vars passed externally
   Deno.env.set("ANOTHER", "VAR");
   config({
     path: "./.env.safe.test",
@@ -253,7 +253,7 @@ Deno.test("configureSafe", () => {
     example: "./.env.example2.test",
   });
 
-  // Throws if any of the required vars passed externaly is empty
+  // Throws if any of the required vars passed externally is empty
   Deno.env.set("ANOTHER", "");
   assertThrows(() => {
     config({
@@ -263,7 +263,7 @@ Deno.test("configureSafe", () => {
     });
   });
 
-  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
+  // Does not throw if any of the required vars passed externally is empty, *and* allowEmptyValues is present
   Deno.env.set("ANOTHER", "");
   config({
     path: "./.env.safe.test",
@@ -381,7 +381,7 @@ Deno.test("configureSafe async", async () => {
     allowEmptyValues: true,
   });
 
-  // Does not throw if any of the required vars passed externaly
+  // Does not throw if any of the required vars passed externally
   Deno.env.set("ANOTHER", "VAR");
   await configAsync({
     path: "./.env.safe.test",
@@ -389,7 +389,7 @@ Deno.test("configureSafe async", async () => {
     example: "./.env.example2.test",
   });
 
-  // Throws if any of the required vars passed externaly is empty
+  // Throws if any of the required vars passed externally is empty
   Deno.env.set("ANOTHER", "");
   assertRejects(async () => {
     await configAsync({
@@ -399,7 +399,7 @@ Deno.test("configureSafe async", async () => {
     });
   });
 
-  // Does not throw if any of the required vars passed externaly is empty, *and* allowEmptyValues is present
+  // Does not throw if any of the required vars passed externally is empty, *and* allowEmptyValues is present
   Deno.env.set("ANOTHER", "");
   await configAsync({
     path: "./.env.safe.test",

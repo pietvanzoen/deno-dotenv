@@ -45,18 +45,6 @@ export function parse(rawDotenv: string): ParseResult {
   return { env, exports };
 }
 
-// accepts the left-hand side of an assignment
-function parseKey(lhs: string): {
-  key: string;
-  exported: boolean;
-} {
-  if (EXPORT_REGEX.test(lhs)) {
-    const key = lhs.replace(EXPORT_REGEX, "");
-    return { key, exported: true };
-  }
-  return { key: lhs, exported: false };
-}
-
 const defaultConfigOptions = {
   path: `.env`,
   export: false,
@@ -88,6 +76,18 @@ export async function configAsync(
     : emptyParseResult();
 
   return processConfig(o, conf, confDefaults, confExample);
+}
+
+// accepts the left-hand side of an assignment
+function parseKey(lhs: string): {
+  key: string;
+  exported: boolean;
+} {
+  if (EXPORT_REGEX.test(lhs)) {
+    const key = lhs.replace(EXPORT_REGEX, "");
+    return { key, exported: true };
+  }
+  return { key: lhs, exported: false };
 }
 
 const mergeDefaults = (options: ConfigOptions): Required<ConfigOptions> => ({

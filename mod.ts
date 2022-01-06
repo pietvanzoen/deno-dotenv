@@ -176,7 +176,6 @@ function assertSafe(
 
   // Not all the variables have to be defined in .env, they can be supplied externally
   const confWithEnv = Object.assign({}, currentEnv, conf.env);
-  const exportsWithEnv = new Set([...currentExportsList, ...conf.exports]);
 
   const missingVars = difference(
     Object.keys(confExample.env),
@@ -201,7 +200,10 @@ function assertSafe(
     throw new MissingEnvVarsError(errorMessages.filter(Boolean).join("\n\n"));
   }
 
-  const missingExports = difference([...confExample.exports], [
+  const exportsWithEnv = new Set([...currentExportsList, ...conf.exports]);
+  const missingExports = difference([
+    ...confExample.exports,
+  ], [
     ...exportsWithEnv,
   ]);
 

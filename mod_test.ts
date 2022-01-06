@@ -1,5 +1,11 @@
 import { assertEquals, assertRejects, assertThrows } from "./test_deps.ts";
-import { config, configAsync, MissingEnvVarExportsError, MissingEnvVarsError, parse } from "./mod.ts";
+import {
+  config,
+  configAsync,
+  MissingEnvVarExportsError,
+  MissingEnvVarsError,
+  parse,
+} from "./mod.ts";
 
 Deno.test("parser", () => {
   const testDotenv = Deno.readTextFileSync("./.env.test");
@@ -457,7 +463,7 @@ Deno.test("configureExports", () => {
   assertEquals(
     Deno.env.get("ANOTHER_DEFAULT_EXPORTED_VARIABLE"),
     "this value should override the default value",
-    "exports a variable if defaults mark it as an export"
+    "exports a variable if defaults mark it as an export",
   );
   assertEquals(
     Deno.env.get("DEFAULT_UNEXPORTED_VARIABLE"),
@@ -469,14 +475,13 @@ Deno.test("configureExports", () => {
   cleanseEnv();
   Deno.env.set("AWESOME_VAR", "wow it's a value going via the environment!");
   assertThrows(() => {
-      config({
-        path: ".env.exports.example.test",
-        defaults: ".env.exports.example.defaults",
-        example: ".env.exports.example",
-        safe: true,
-      })
-    }, MissingEnvVarExportsError
-  );
+    config({
+      path: ".env.exports.example.test",
+      defaults: ".env.exports.example.defaults",
+      example: ".env.exports.example",
+      safe: true,
+    });
+  }, MissingEnvVarExportsError);
 });
 
 function cleanseEnv() {

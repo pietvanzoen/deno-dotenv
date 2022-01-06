@@ -125,10 +125,12 @@ Deno.test("parser", () => {
     },
   ];
 
-  const expectedExportedVariables = expectedExportedAssignments.map(({ name }) => name);
+  const expectedExportedVariables = expectedExportedAssignments.map((
+    { name },
+  ) => name);
   assertEquals(
-    [...exports],
-    expectedExportedVariables,
+    [...exports].sort(),
+    expectedExportedVariables.sort(),
     "correctly identifies exports",
   );
 
@@ -407,6 +409,38 @@ Deno.test("configureSafe async", async () => {
     example: "./.env.example2.test",
     allowEmptyValues: true,
   });
+});
+
+Deno.test("configureExports", () => {
+  cleanseEnv();
+  config({
+    path: ".env.exports",
+  });
+
+  const expectedUnexportedVariables = [
+    "NON_EXPORTED_VAR_1",
+    "NON_EXPORTED_VAR_2",
+  ];
+  expectedUnexportedVariables.forEach((name) =>
+    assertEquals(
+      Deno.env.get(name),
+      undefined,
+      "does not export unexported variables",
+    )
+  );
+
+  const expectedExportedAssignments = [{
+    name: "EXPORTED_VAR_1",
+    value: "exported value 1",
+    comment: "exports variables correctly",
+  }, {
+    name: "EXPORTED_VAR_2",
+    value: "exported value 2",
+    comment: "exports variables correctly",
+  }];
+  expectedExportedAssignments.forEach(({ name, value, comment }) =>
+    assertEquals(Deno.env.get(name), value, comment)
+  );
 });
 
 function cleanseEnv() {

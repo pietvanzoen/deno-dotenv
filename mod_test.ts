@@ -408,3 +408,9 @@ Deno.test("configureSafe async", async () => {
     allowEmptyValues: true,
   });
 });
+
+function cleanseEnv() {
+  for (const key of Object.keys(Deno.env.toObject())) {
+    Deno.env.delete(key);
+  }
+}

@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects, assertThrows } from "./test_deps.ts";
-import { config, configAsync, MissingEnvVarsError, parse } from "./mod.ts";
+import { config, configAsync, MissingEnvVarExportsError, MissingEnvVarsError, parse } from "./mod.ts";
 
 Deno.test("parser", () => {
   const testDotenv = Deno.readTextFileSync("./.env.test");
@@ -412,9 +412,10 @@ Deno.test("configureSafe async", async () => {
 });
 
 Deno.test("configureExports", () => {
+  // exports requested variables
   cleanseEnv();
   config({
-    path: ".env.exports",
+    path: ".env.exports.test",
   });
 
   const expectedUnexportedVariables = [
@@ -425,7 +426,7 @@ Deno.test("configureExports", () => {
     assertEquals(
       Deno.env.get(name),
       undefined,
-      "does not export unexported variables",
+      "does not export variables not marked for export",
     )
   );
 
@@ -440,6 +441,41 @@ Deno.test("configureExports", () => {
   }];
   expectedExportedAssignments.forEach(({ name, value, comment }) =>
     assertEquals(Deno.env.get(name), value, comment)
+  );
+
+  // exports anything marked as "export" from defaults
+  cleanseEnv();
+  config({
+    path: ".env.exports.defaults.test",
+    defaults: ".env.exports.defaults",
+  });
+  assertEquals(
+    Deno.env.get("DEFAULT_EXPORTED_VARIABLE"),
+    "default exported value yeaah",
+    "takes an unmentioned variable from default and exports it",
+  );
+  assertEquals(
+    Deno.env.get("ANOTHER_DEFAULT_EXPORTED_VARIABLE"),
+    "this value should override the default value",
+    "exports a variable if defaults mark it as an export"
+  );
+  assertEquals(
+    Deno.env.get("DEFAULT_UNEXPORTED_VARIABLE"),
+    undefined,
+    "does not export a variable not marked as an export",
+  );
+
+  // example file checks certain variables to be exported
+  cleanseEnv();
+  Deno.env.set("AWESOME_VAR", "wow it's a value going via the environment!");
+  assertThrows(() => {
+      config({
+        path: ".env.exports.example.test",
+        defaults: ".env.exports.example.defaults",
+        example: ".env.exports.example",
+        safe: true,
+      })
+    }, MissingEnvVarExportsError
   );
 });
 

@@ -26,7 +26,7 @@ export function parse(rawDotenv: string): ParseResult {
   const exports = new Set<string>();
 
   for (const line of rawDotenv.split("\n")) {
-    if (!isVariableStart(line)) continue;
+    if (!isAssignmentLine(line)) continue;
     const lhs = line.slice(0, line.indexOf("=")).trim();
     const { key, exported } = parseKey(lhs);
     if (exported) {
@@ -150,8 +150,8 @@ async function parseFileAsync(filepath: string): Promise<ParseResult> {
   }
 }
 
-function isVariableStart(str: string): boolean {
-  return /^\s*[a-zA-Z_][a-zA-Z_0-9 ]*\s*=/.test(str);
+function isAssignmentLine(str: string): boolean {
+  return /^\s*(?:export\s+)?[a-zA-Z_][a-zA-Z_0-9 ]*\s*=/.test(str);
 }
 
 function hasSingleQuotes(str: string): boolean {

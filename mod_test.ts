@@ -2,10 +2,9 @@ import { assertEquals, assertRejects, assertThrows } from "./test_deps.ts";
 import { config, configAsync, MissingEnvVarsError, parse } from "./mod.ts";
 
 Deno.test("parser", () => {
-  const testDotenv = new TextDecoder("utf-8").decode(
-    Deno.readFileSync("./.env.test"),
-  );
-  const { env: config } = parse(testDotenv);
+  const testDotenv = Deno.readTextFileSync("./.env.test");
+
+  const { env: config, exports } = parse(testDotenv);
   assertEquals(config.BASIC, "basic", "parses a basic variable");
   assertEquals(config.AFTER_EMPTY, "empty", "skips empty lines");
   assertEquals(config["#COMMENT"], undefined, "skips lines with comments");
@@ -101,6 +100,40 @@ Deno.test("parser", () => {
     config.TAB_INDENTED_VALUE,
     "indented value",
     "accepts values that are indented with tabs",
+  );
+
+  const expectedExportedAssignments = [
+    {
+      name: "EXPORTED_VAR",
+      value: "exported value 1",
+      comment: "accepts exported variables",
+    },
+    {
+      name: "INDENTED_EXPORTED_ASSIGNMENT",
+      value: "exported value 2",
+      comment: "accepts indented exported assignments",
+    },
+    {
+      name: "TAB_INDENTED_EXPORTED_ASSIGNMENT",
+      value: "  exported value 3  ",
+      comment: "accepts tab indented exported assignments",
+    },
+    {
+      name: "TAB_SPACED_ASSIGNMENT_VAR",
+      value: "		exported value 4		",
+      comment: "accepts tab spaced exported assignments",
+    },
+  ];
+
+  const expectedExportedVariables = expectedExportedAssignments.map(({ name }) => name);
+  assertEquals(
+    [...exports],
+    expectedExportedVariables,
+    "correctly identifies exports",
+  );
+
+  expectedExportedAssignments.forEach(({ name, value, comment }) =>
+    assertEquals(config[name], value, comment)
   );
 });
 

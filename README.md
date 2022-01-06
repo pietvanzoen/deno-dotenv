@@ -32,7 +32,8 @@ Then run your app.
 - `path?: string`: Optional path to `.env` file. Defaults to `./.env`.
 - `export?: boolean`: Set to `true` to export all `.env` variables to the
   current processes environment. Variables are then accessable via
-  `Deno.env.get(<key>)`. Defaults to `false` (individual variables can be exported via `export` keyword, see below).
+  `Deno.env.get(<key>)`. Defaults to `false` (individual variables can be
+  exported via `export` keyword, see below).
 - `safe?: boolean`: Set to `true` to ensure that all necessary environment
   variables are defined after reading from `.env`. It will read `.env.example`
   to get the list of needed variables.
@@ -108,32 +109,38 @@ GREETING="a secret to everybody"
 
 ## Exporting Variables
 
-Sometimes it is necessary to have variables available in the actual program environment,
-which is accessible as `Deno.env`.
+Sometimes it is necessary to have variables available in the actual program
+environment, which is accessible as `Deno.env`.
 
-One option is to set the configuration option `export` to `true`.
-In this case, _all_ variables provided in `.env` (and in `.env.defaults`, if provided) will be
+One option is to set the configuration option `export` to `true`. In this case,
+_all_ variables provided in `.env` (and in `.env.defaults`, if provided) will be
 exported.
 
-Another option is to use `export` keyword in the actual `.env` file, with the same syntax as in `bash`:
+Another option is to use `export` keyword in the actual `.env` file, with the
+same syntax as in `bash`:
+
 ```sh
 # .env
 NUM_THREADS=8
 export LOG_PATH="/var/log/server.log"
 ```
 
-_Note_: Variables that already exist in the environment are not overridden with the
-`export: true` configuration option or with the `export VARIABLE="value"` syntax
+_Note_: Variables that already exist in the environment are not overridden with
+the `export: true` configuration option or with the `export VARIABLE="value"`
+syntax
 
-In the example file, you can use `export` to require that certain variables be exported:
+In the example file, you can use `export` to require that certain variables be
+exported:
+
 ```
 # .env.example
 NUM_THREADS="provide the number of threads"
 export LOG_PATH="set the path where to save logs"
 ```
-The example file will make sure that variable `LOG_PATH` will have been present in the program environment —
-either coming from `.env`, or from `.env.defaults` (if provided) or if it already has been set up in the environment beforehand
 
+The example file will make sure that variable `LOG_PATH` will have been present
+in the program environment — either coming from `.env`, or from `.env.defaults`
+(if provided) or if it already has been set up in the environment beforehand
 
 ## Parsing Rules
 

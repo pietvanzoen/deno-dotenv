@@ -1,6 +1,55 @@
-# Dotenv [![Build Status](https://travis-ci.com/pietvanzoen/deno-dotenv.svg?branch=master)](https://travis-ci.com/pietvanzoen/deno-dotenv) [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/pietvanzoen/deno-dotenv)](https://github.com/pietvanzoen/deno-dotenv/releases)
+# 📣 Dotenv is now a part of [deno_std](https://github.com/denoland/deno_std/tree/main/dotenv) 🎉
 
-Dotenv handling for deno.
+As of [0.127.0](https://github.com/denoland/deno_std/releases/tag/0.127.0) dotenv is a part of the deno standard library.
+
+Head to [denoland/deno_std/dotenv](https://github.com/denoland/deno_std/tree/main/dotenv) to get started.
+
+## Migrating from `deno-dotenv` to `deno_std/dotenv`
+
+If you're already using this library you need to make the following changes to use the deno_std version:
+
+1. Change url.
+2. Change `config` usage. Details below.
+
+_Replace `$STD_VERSION` with `0.127.0` or greater._
+
+```typescript
+// BEFORE SYNCHRONOUS:
+import { config } from "https://deno.land/x/dotenv/mod.ts";
+
+console.log(config());
+
+// DENO_STD SYNCHRONOUS:
+import { configSync } from "https://deno.land/std@$STD_VERSION/dotenv/mod.ts";
+
+console.log(configSync());
+
+// BEFORE ASYNCHRONOUS:
+import { configAsync } from "https://deno.land/x/dotenv/mod.ts";
+
+console.log(await configAsync());
+
+// DENO_STD ASYNCHRONOUS:
+import { config } from "https://deno.land/std@$STD_VERSION/dotenv/mod.ts";
+
+console.log(await config());
+```
+
+Migrating `/load.ts` usage:
+
+```typescript
+// BEFORE
+import "https://deno.land/x/dotenv/load.ts";
+
+// NOW
+import "https://deno.land/std@$STD_VERSION/dotenv/load.ts";
+```
+
+Support for [Exporting Variables](#exporting-variables) is not included in the `deno_std` version of dotenv. If you need this you can continue using [v3.1.0](https://github.com/pietvanzoen/deno-dotenv/releases/tag/v3.1.0) of this library.
+
+---
+
+# Documentation for legacy dotenv library
 
 ## Usage
 
